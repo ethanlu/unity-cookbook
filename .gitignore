@@ -10,6 +10,12 @@
 /[Ll]ogs/
 /[Mm]emoryCaptures/
 
+# maybe not needed in repo?
+/[Aa]ssets/Scenes/
+/[Pp]ackages
+/[Pp]rojectSettings
+/[Uu]serSettings
+
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
 
@@ -58,3 +64,7 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+.DS_Store
+
+# jetbrains
+.idea/
