@@ -11,7 +11,13 @@
 /[Mm]emoryCaptures/
 
 # maybe not needed in repo?
+/[Aa]ssets/Animations/
+/[Aa]ssets/Prefabs/
 /[Aa]ssets/Scenes/
+/[Aa]ssets/Scripts/
+/[Aa]ssets/Sprites/
+/[Aa]ssets/Textures/
+/[Aa]ssets/Tiles/
 /[Pp]ackages
 /[Pp]rojectSettings
 /[Uu]serSettings
