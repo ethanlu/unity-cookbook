@@ -10,21 +10,17 @@
 /[Ll]ogs/
 /[Mm]emoryCaptures/
 
-# maybe not needed in repo?
-/[Aa]ssets/Animations/
-/[Aa]ssets/Prefabs/
-/[Aa]ssets/Scenes/
-/[Aa]ssets/Settings/
-/[Aa]ssets/Scripts/
-/[Aa]ssets/Sprites/
-/[Aa]ssets/Textures/
-/[Aa]ssets/Tiles/
+# only keep common code for now
+/[Aa]ssets
 /[Pp]ackages
 /[Pp]rojectSettings
 /[Uu]serSettings
 
+!/[Aa]ssets/Common/
+!/[Aa]ssets/Common.meta
+
 # Asset meta data should only be ignored when the corresponding asset is also ignored
-!/[Aa]ssets/**/*.meta
+#!/[Aa]ssets/**/*.meta
 
 # Uncomment this line if you wish to ignore the asset store tools plugin
 # /[Aa]ssets/AssetStoreTools*
