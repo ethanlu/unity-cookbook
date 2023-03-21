@@ -11,13 +11,18 @@
 /[Mm]emoryCaptures/
 
 # only keep common code for now
-/[Aa]ssets
+/[Aa]ssets/Animations*
+/[Aa]ssets/Scenes*
+/[Aa]ssets/Scripts*
+/[Aa]ssets/Settings*
+/[Aa]ssets/Sprites*
+/[Aa]ssets/Textures*
+/[Aa]ssets/Tiles*
+/[Aa]ssets/Sandbox*
+/[Aa]ssets/Scenes*
 /[Pp]ackages
 /[Pp]rojectSettings
 /[Uu]serSettings
-
-!/[Aa]ssets/Common/
-!/[Aa]ssets/Common.meta
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 #!/[Aa]ssets/**/*.meta
