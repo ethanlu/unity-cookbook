@@ -8,61 +8,58 @@ namespace Unity2dCookbook
     public class SideScrollMove : MonoBehaviour
     {
         [SerializeField] private float _topSpeed = 4f;
-        [SerializeField] private bool _acceleration = false;
+        [SerializeField] private bool _instantTopSpeed = true;
+        [SerializeField] private float _accelerationSpeed = .01f;
+        [SerializeField] private float _deccelerationSpeed = .04f;
         
         private Rigidbody2D _rigidbody2D;
         private bool _moving;
-        private float _currentSpeed;
-        private float _accelerationSpeed;
-        private float _deccelerationSpeed;
+        private float _moveVelocity;
 
         public bool IsMoving() { return _moving; }
 
-        void Start()
+        private void Start()
         {
             _rigidbody2D = GetComponent<Rigidbody2D>();
             _moving = false;
-            _accelerationSpeed = _topSpeed / 100f;
-            _deccelerationSpeed = _topSpeed / 50f;
-            _currentSpeed = 0f;
+            _moveVelocity = 0f;
         }
-        
-        void Update()
-        {
-            Vector2 v = GameInput.Instance.GetMovementVector(true);
 
+        private void Update()
+        {
+            Vector2 v = GameInput.Instance.GetSideScrollPlayerMoveVector(true);
             if (v.x > 0f || v.x < 0f)
             {
                 _moving = true;
-                if (_acceleration)
+                if (_instantTopSpeed)
                 {
-                    _currentSpeed = Mathf.Clamp(_currentSpeed + v.x * _accelerationSpeed, -_topSpeed, _topSpeed);
-                    _rigidbody2D.velocity = new Vector2(_currentSpeed, _rigidbody2D.velocity.y);
+                    _moveVelocity = v.x * _topSpeed;
                 }
                 else
                 {
-                    _rigidbody2D.velocity = new Vector2(v.x * _topSpeed, _rigidbody2D.velocity.y);
+                    _moveVelocity = Mathf.Clamp(_moveVelocity + v.x * _accelerationSpeed * Time.deltaTime, -_topSpeed, _topSpeed);
                 }
+                _rigidbody2D.velocity = new Vector2(_moveVelocity, _rigidbody2D.velocity.y);
             }
             else
             {
                 _moving = false;
-                if (_acceleration)
+                if (_instantTopSpeed)
                 {
-                    if (_currentSpeed < 0f)
-                    {
-                        _currentSpeed = Mathf.Clamp(_currentSpeed + _deccelerationSpeed, _currentSpeed, 0f);
-                    }
-                    if (_currentSpeed > 0f)
-                    {
-                        _currentSpeed = Mathf.Clamp(_currentSpeed - _deccelerationSpeed, 0f, _currentSpeed);
-                    }
-                    _rigidbody2D.velocity = new Vector2(_currentSpeed, _rigidbody2D.velocity.y);
+                    _moveVelocity = 0f;
                 }
                 else
                 {
-                    _rigidbody2D.velocity = new Vector2(0f, _rigidbody2D.velocity.y);
+                    if (_moveVelocity < 0f)
+                    {
+                        _moveVelocity = Mathf.Clamp(_moveVelocity + _deccelerationSpeed * Time.deltaTime, _moveVelocity, 0f);
+                    }
+                    if (_moveVelocity > 0f)
+                    {
+                        _moveVelocity = Mathf.Clamp(_moveVelocity - _deccelerationSpeed * Time.deltaTime, 0f, _moveVelocity);
+                    }
                 }
+                _rigidbody2D.velocity = new Vector2(_moveVelocity, _rigidbody2D.velocity.y);
             }
         }
     }
