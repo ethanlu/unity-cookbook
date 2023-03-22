@@ -39,7 +39,6 @@ namespace Unity2dCookbook
                 {
                     _moveVelocity = Mathf.Clamp(_moveVelocity + v.x * _accelerationSpeed * Time.deltaTime, -_topSpeed, _topSpeed);
                 }
-                _rigidbody2D.velocity = new Vector2(_moveVelocity, _rigidbody2D.velocity.y);
             }
             else
             {
@@ -59,8 +58,8 @@ namespace Unity2dCookbook
                         _moveVelocity = Mathf.Clamp(_moveVelocity - _deccelerationSpeed * Time.deltaTime, 0f, _moveVelocity);
                     }
                 }
-                _rigidbody2D.velocity = new Vector2(_moveVelocity, _rigidbody2D.velocity.y);
             }
+            _rigidbody2D.velocity = new Vector2(_moveVelocity, _rigidbody2D.velocity.y);
         }
     }
 }
