@@ -10,4 +10,17 @@ namespace Unity2dCookbook
         Up = 2,
         Down = 3
     }
+
+    public enum MoveState
+    {
+        Idle = 0,
+        Moving = 1
+    }
+
+    public enum JumpState
+    {
+        Grounded = 0,
+        Jumping = 1,
+        Falling = 2,
+    }
 }

@@ -1,13 +1,21 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Unity2dCookbook
 {
+    public class JumpStateChangedEventArgs : EventArgs
+    {
+        public JumpState State { get; set; }
+    }
+
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(BoxCollider2D))]
     public class SideScrollJump : MonoBehaviour
     {
+        public event EventHandler<JumpStateChangedEventArgs> JumpStateChangedEvent;
+        
         [SerializeField] private LayerMask _groundLayer;
         [SerializeField] private float _jumpSpeed = 10f;
         [SerializeField] private bool _airJump = true;
@@ -18,8 +26,22 @@ namespace Unity2dCookbook
         private BoxCollider2D _boxCollider2D;
 
         private int _airJumpCount;
-        private bool _jumping;
-        private bool _falling;
+        private JumpState _jumpState;
+
+        private void UpdateState(JumpState state)
+        {
+            if (_jumpState != state)
+            {
+                JumpStateChangedEventArgs args = new JumpStateChangedEventArgs();
+                args.State = state;
+                EventHandler<JumpStateChangedEventArgs> eventHandler = JumpStateChangedEvent;
+                if (eventHandler is not null)
+                {
+                    eventHandler(this, args);
+                }
+            }
+            _jumpState = state;
+        }
 
         private bool IsGrounded()
         {
@@ -35,26 +57,20 @@ namespace Unity2dCookbook
             return hit.collider is not null;
         }
 
-        public bool IsJumping() { return _jumping; }
-        public bool IsFalling() { return _falling; }
-
-        void Start()
+        private void Start()
         {
             _rigidbody2D = GetComponent<Rigidbody2D>();
             _boxCollider2D = GetComponent<BoxCollider2D>();
-            _jumping = false;
-            _falling = false;
-
+            _jumpState = JumpState.Grounded;
             _airJumpCount = 0;
         }
         
-        void Update()
+        private void Update()
         {
             var grounded = IsGrounded();
             if (_rigidbody2D.velocity.y < 0f)
             {   // if vertical velocity is negative, then we must no longer be jumping and would be falling if we are not grounded
-                _jumping = false;
-                _falling = !grounded;
+                UpdateState(grounded ? JumpState.Grounded : JumpState.Falling);
             }
 
             if (grounded)
@@ -64,9 +80,8 @@ namespace Unity2dCookbook
 
             if (Input.GetKeyDown("space") && (grounded || (_airJump && _rigidbody2D.velocity.y < 1f && _airJumpCount < _maxAirJumps)))
             {   // only allow jump if we are grounded or double jump is enabled and we are around the apex of the jump and we still have air jump charges available
+                UpdateState(JumpState.Jumping);
                 _airJumpCount += grounded ? 0 : 1;
-                _jumping = true;
-                _falling = false;
                 _rigidbody2D.velocity += Vector2.up * _jumpSpeed;
             }
         }

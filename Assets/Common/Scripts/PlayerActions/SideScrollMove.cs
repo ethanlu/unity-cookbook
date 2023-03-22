@@ -1,27 +1,55 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Unity2dCookbook
 {
+    public class MoveStateChangedEventArgs : EventArgs
+    {
+        public MoveState State { get; set; }
+        public Direction Facing { get; set; }
+    }
+    
     [RequireComponent(typeof(Rigidbody2D))]
     public class SideScrollMove : MonoBehaviour
     {
+        public event EventHandler<MoveStateChangedEventArgs> MoveStateChangedEvent;
+        
         [SerializeField] private float _topSpeed = 4f;
         [SerializeField] private bool _instantTopSpeed = true;
         [SerializeField] private float _accelerationSpeed = .01f;
         [SerializeField] private float _deccelerationSpeed = .04f;
-        
+
         private Rigidbody2D _rigidbody2D;
-        private bool _moving;
+        private MoveState _moveState;
+        private Direction _facing;
         private float _moveVelocity;
 
-        public bool IsMoving() { return _moving; }
+        private void UpdateState(MoveState state, Direction facing)
+        {
+            if (_moveState != state || _facing != facing)
+            {   // notify subscribers only if state changed 
+                MoveStateChangedEventArgs args = new MoveStateChangedEventArgs();
+                args.State = state;
+                args.Facing = facing;
+
+                EventHandler<MoveStateChangedEventArgs> eventHandler = MoveStateChangedEvent;
+                if (eventHandler is not null)
+                {
+                    eventHandler(this, args);
+                }
+            }
+            _moveState = state;
+            _facing = facing;
+        }
 
         private void Start()
         {
             _rigidbody2D = GetComponent<Rigidbody2D>();
-            _moving = false;
+            _moveState = MoveState.Idle;
+            _facing = Direction.Right;
             _moveVelocity = 0f;
         }
 
@@ -30,7 +58,6 @@ namespace Unity2dCookbook
             Vector2 v = GameInput.Instance.GetSideScrollPlayerMoveVector(true);
             if (v.x > 0f || v.x < 0f)
             {
-                _moving = true;
                 if (_instantTopSpeed)
                 {
                     _moveVelocity = v.x * _topSpeed;
@@ -39,10 +66,10 @@ namespace Unity2dCookbook
                 {
                     _moveVelocity = Mathf.Clamp(_moveVelocity + v.x * _accelerationSpeed * Time.deltaTime, -_topSpeed, _topSpeed);
                 }
+                UpdateState(MoveState.Moving, v.x > 0f ? Direction.Right : Direction.Left);
             }
             else
             {
-                _moving = false;
                 if (_instantTopSpeed)
                 {
                     _moveVelocity = 0f;
@@ -58,6 +85,7 @@ namespace Unity2dCookbook
                         _moveVelocity = Mathf.Clamp(_moveVelocity - _deccelerationSpeed * Time.deltaTime, 0f, _moveVelocity);
                     }
                 }
+                UpdateState(MoveState.Idle, _facing);
             }
             _rigidbody2D.velocity = new Vector2(_moveVelocity, _rigidbody2D.velocity.y);
         }
