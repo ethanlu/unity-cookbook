@@ -36,10 +36,7 @@ namespace Unity2dCookbook
                 args.Facing = facing;
 
                 EventHandler<MoveStateChangedEventArgs> eventHandler = MoveStateChangedEvent;
-                if (eventHandler is not null)
-                {
-                    eventHandler(this, args);
-                }
+                eventHandler?.Invoke(this, args);
             }
             _moveState = state;
             _facing = facing;
@@ -55,7 +52,7 @@ namespace Unity2dCookbook
 
         private void Update()
         {
-            Vector2 v = GameInput.Instance.GetSideScrollPlayerMoveVector(true);
+            Vector2 v = SideScrollGameInput.Instance.GetSideScrollPlayerMoveVector(true);
             if (v.x > 0f || v.x < 0f)
             {
                 if (_instantTopSpeed)

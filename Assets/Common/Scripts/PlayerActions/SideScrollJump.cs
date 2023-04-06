@@ -20,6 +20,7 @@ namespace Unity2dCookbook
         [SerializeField] private float _jumpSpeed = 10f;
         [SerializeField] private bool _airJump = true;
         [SerializeField] private int _maxAirJumps = 1;
+        [SerializeField] private float _airJumpWindow = 1f;
         [SerializeField] private float _groundDistance = .5f;
 
         private Rigidbody2D _rigidbody2D;
@@ -31,16 +32,24 @@ namespace Unity2dCookbook
         private void UpdateState(JumpState state)
         {
             if (_jumpState != state)
-            {
+            {   // notify subscribers only if state changed 
                 JumpStateChangedEventArgs args = new JumpStateChangedEventArgs();
                 args.State = state;
                 EventHandler<JumpStateChangedEventArgs> eventHandler = JumpStateChangedEvent;
-                if (eventHandler is not null)
-                {
-                    eventHandler(this, args);
-                }
+                eventHandler?.Invoke(this, args);
             }
             _jumpState = state;
+        }
+
+        private void JumpAction(object sender, EventArgs args)
+        {
+            var grounded = IsGrounded();
+            if (grounded || (_airJump && _rigidbody2D.velocity.y > -_airJumpWindow && _rigidbody2D.velocity.y < _airJumpWindow && _airJumpCount < _maxAirJumps))
+            {   // only allow jump if we are grounded or double jump is enabled and we are around the apex of the jump and we still have air jump charges available
+                UpdateState(JumpState.Jumping);
+                _airJumpCount += grounded ? 0 : 1;
+                _rigidbody2D.velocity += Vector2.up * _jumpSpeed;
+            }
         }
 
         private bool IsGrounded()
@@ -63,6 +72,8 @@ namespace Unity2dCookbook
             _boxCollider2D = GetComponent<BoxCollider2D>();
             _jumpState = JumpState.Grounded;
             _airJumpCount = 0;
+
+            SideScrollGameInput.Instance.OnJumpAction += JumpAction;
         }
         
         private void Update()
@@ -76,13 +87,6 @@ namespace Unity2dCookbook
             if (grounded)
             {
                 _airJumpCount = 0;
-            }
-
-            if (Input.GetKeyDown("space") && (grounded || (_airJump && _rigidbody2D.velocity.y < 1f && _airJumpCount < _maxAirJumps)))
-            {   // only allow jump if we are grounded or double jump is enabled and we are around the apex of the jump and we still have air jump charges available
-                UpdateState(JumpState.Jumping);
-                _airJumpCount += grounded ? 0 : 1;
-                _rigidbody2D.velocity += Vector2.up * _jumpSpeed;
             }
         }
     }
