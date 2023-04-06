@@ -10,8 +10,8 @@ namespace Unity2dCookbook
         {
             InstantTopSpeed = true;
             TopSpeed = 4f;
-            AccelerationSpeed = .01f;
-            DecelerationSpeed = .04f;
+            AccelerationSpeed = 10f;
+            DecelerationSpeed = 15f;
         }
 
         public bool InstantTopSpeed;
