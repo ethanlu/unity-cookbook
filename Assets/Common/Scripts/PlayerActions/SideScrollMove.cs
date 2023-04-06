@@ -41,6 +41,18 @@ namespace Unity2dCookbook
             _moveState = state;
             _facing = facing;
         }
+        
+        private void MoveAction(object sender, EventArgs args)
+        {
+            _moveVelocity = ((MoveEventArgs) args).Value.x * _topSpeed;
+            UpdateState(MoveState.Moving, _moveVelocity > 0f ? Direction.Right : Direction.Left);
+        }
+
+        private void StopAction(object sender, EventArgs args)
+        {
+            _moveVelocity = 0f;
+            UpdateState(MoveState.Idle, _facing);
+        }
 
         private void Start()
         {
@@ -48,43 +60,36 @@ namespace Unity2dCookbook
             _moveState = MoveState.Idle;
             _facing = Direction.Right;
             _moveVelocity = 0f;
-        }
 
+            SideScrollGameInput.Instance.OnMoveAction += MoveAction;
+            SideScrollGameInput.Instance.OnStopAction += StopAction;
+        }
+        
         private void Update()
         {
-            Vector2 v = SideScrollGameInput.Instance.GetSideScrollPlayerMoveVector(true);
-            if (v.x > 0f || v.x < 0f)
-            {
-                if (_instantTopSpeed)
-                {
-                    _moveVelocity = v.x * _topSpeed;
-                }
-                else
-                {
-                    _moveVelocity = Mathf.Clamp(_moveVelocity + v.x * _accelerationSpeed * Time.deltaTime, -_topSpeed, _topSpeed);
-                }
-                UpdateState(MoveState.Moving, v.x > 0f ? Direction.Right : Direction.Left);
+            if (_instantTopSpeed)
+            {   // apply move velocity immediately
+                _rigidbody2D.velocity = new Vector2(_moveVelocity, _rigidbody2D.velocity.y);
             }
             else
-            {
-                if (_instantTopSpeed)
+            {   // acclerate/decelerate to move velocity
+                switch (_moveState)
                 {
-                    _moveVelocity = 0f;
+                    case MoveState.Moving:
+                        _rigidbody2D.velocity = new Vector2(Mathf.Clamp(_rigidbody2D.velocity.x + (_moveVelocity > 0f ? 1f : -1f) * _accelerationSpeed * Time.deltaTime, -_topSpeed, _topSpeed), _rigidbody2D.velocity.y);
+                        break;
+                    case MoveState.Idle:
+                        if (_rigidbody2D.velocity.x < 0f)
+                        {
+                            _rigidbody2D.velocity = new Vector2(Mathf.Clamp(_rigidbody2D.velocity.x + _deccelerationSpeed * Time.deltaTime, _rigidbody2D.velocity.x, _moveVelocity), _rigidbody2D.velocity.y);
+                        }
+                        if (_rigidbody2D.velocity.x > 0f)
+                        {
+                            _rigidbody2D.velocity = new Vector2(Mathf.Clamp(_rigidbody2D.velocity.x - _deccelerationSpeed * Time.deltaTime, _moveVelocity, _rigidbody2D.velocity.x), _rigidbody2D.velocity.y);
+                        }
+                        break;
                 }
-                else
-                {
-                    if (_moveVelocity < 0f)
-                    {
-                        _moveVelocity = Mathf.Clamp(_moveVelocity + _deccelerationSpeed * Time.deltaTime, _moveVelocity, 0f);
-                    }
-                    if (_moveVelocity > 0f)
-                    {
-                        _moveVelocity = Mathf.Clamp(_moveVelocity - _deccelerationSpeed * Time.deltaTime, 0f, _moveVelocity);
-                    }
-                }
-                UpdateState(MoveState.Idle, _facing);
             }
-            _rigidbody2D.velocity = new Vector2(_moveVelocity, _rigidbody2D.velocity.y);
         }
     }
 }
