@@ -1,7 +1,10 @@
 using System;
+using Unity2dPlatformerCookbook.Scripts.Animations;
+using Unity2dPlatformerCookbook.Scripts.Controls;
+using Unity2dPlatformerCookbook.Scripts.Utils;
 using UnityEngine;
 
-namespace Unity2dCookbook
+namespace Unity2dPlatformerCookbook.Scripts.Entities
 {
     [Serializable]
     public class MoveConfiguration
@@ -40,10 +43,22 @@ namespace Unity2dCookbook
         public float GroundDistance;
     }
 
+    [Serializable]
+    public class AttackConfiguration
+    {
+        public AttackConfiguration()
+        {
+            AttackMove = false;
+            ComboWindow = 1f;
+        }
+
+        public bool AttackMove;
+        public float ComboWindow;
+    }
+
     [RequireComponent(typeof(BoxCollider2D))]
     [RequireComponent(typeof(Rigidbody2D))]
-    [RequireComponent(typeof(SideScrollAnimation))]
-    public class SideScrollEntity : MonoBehaviour
+    public class Entity : MonoBehaviour
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,6 +67,7 @@ namespace Unity2dCookbook
         [SerializeField] protected GameObject _visual;
         [SerializeField] protected MoveConfiguration _moveConfiguration;
         [SerializeField] protected JumpConfiguration _jumpConfiguration;
+        [SerializeField] protected AttackConfiguration _attackConfiguration;
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +76,7 @@ namespace Unity2dCookbook
         protected BoxCollider2D _boxCollider2D;
         protected Rigidbody2D _rigidbody2D;
         
-        protected SideScrollAnimation _sideScrollAnimation;
+        protected EntityAnimator _entityAnimator;
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,12 +88,16 @@ namespace Unity2dCookbook
         protected Direction _facing;
         protected MoveState _moveState;
         protected JumpState _jumpState;
+        protected AttackState _attackState;
 
         // move properties
         protected float _moveVelocity;
         
         // jump properties
         protected int _airJumpCount;
+        
+        // attack properties
+        protected int _attackCombo;
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -145,13 +165,43 @@ namespace Unity2dCookbook
             {   // if vertical velocity is negative, then we must no longer be jumping and would be falling if we are not grounded
                 _jumpState = _grounded ? JumpState.Grounded : JumpState.Falling;
                 
-                _sideScrollAnimation.Jumping(false);
-                _sideScrollAnimation.Falling(_jumpState == JumpState.Falling);
+                _entityAnimator.Jumping(false);
+                _entityAnimator.Falling(_jumpState == JumpState.Falling);
             }
 
             if (_grounded)
             {
                 _airJumpCount = 0;
+            }
+        }
+
+        private void ApplyAttack()
+        {
+            switch (_attackState)
+            {
+                case AttackState.Ready:
+                    // initial attack
+                    _attackCombo++;
+                    _attackState = AttackState.Attacking;
+                    break;
+                case AttackState.Recovery:
+                    // recovery phase...can do combo if
+                    if (_attackCombo == 1)
+                    {
+                        _attackCombo++;
+                        _attackState = AttackState.Attacking;
+                    }
+                    break;
+                default:
+                    // invalid time to attack
+                    _attackCombo = 0;
+                    _attackState = AttackState.Ready;
+                    break;
+            }
+            
+            if (_attackState == AttackState.Attacking && !_attackConfiguration.AttackMove && _jumpState == JumpState.Grounded)
+            {   // we are attacking, but attack move is not enabled and we are grounded....so set move velocity to 0 
+                _moveVelocity = 0f;
             }
         }
 
@@ -165,10 +215,10 @@ namespace Unity2dCookbook
             _moveState = MoveState.Moving;
             _facing = _moveVelocity > 0f ? Direction.Right : Direction.Left;
             
-            _sideScrollAnimation.Moving(_moveState == MoveState.Moving);
+            _entityAnimator.Moving(_moveState == MoveState.Moving);
             if (_moveState == MoveState.Moving)
             {
-                _sideScrollAnimation.Facing(_facing);
+                _entityAnimator.Facing(_facing);
             }
         }
 
@@ -177,7 +227,7 @@ namespace Unity2dCookbook
             _moveVelocity = 0f;
             _moveState = MoveState.Idle;
             
-            _sideScrollAnimation.Moving(_moveState == MoveState.Moving);
+            _entityAnimator.Moving(_moveState == MoveState.Moving);
         }
         
         private void JumpAction(object sender, EventArgs args)
@@ -188,9 +238,14 @@ namespace Unity2dCookbook
                 _rigidbody2D.velocity += Vector2.up * _jumpConfiguration.JumpSpeed;
                 _jumpState = JumpState.Jumping;
                 
-                _sideScrollAnimation.Jumping(true);
-                _sideScrollAnimation.Falling(false);
+                _entityAnimator.Jumping(true);
+                _entityAnimator.Falling(false);
             }
+        }
+
+        private void AttackAction(object sender, EventArgs args)
+        {
+            
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -206,7 +261,7 @@ namespace Unity2dCookbook
         {
             _rigidbody2D = GetComponent<Rigidbody2D>();
             _boxCollider2D = GetComponent<BoxCollider2D>();
-            _sideScrollAnimation = _visual.GetComponent<SideScrollAnimation>();
+            _entityAnimator = _visual.GetComponent<EntityAnimator>();
             
             _moveState = MoveState.Idle;
             _facing = Direction.Right;
@@ -215,9 +270,13 @@ namespace Unity2dCookbook
             _jumpState = JumpState.Grounded;
             _airJumpCount = 0;
 
-            SideScrollGameInput.Instance.OnMoveAction += MoveAction;
-            SideScrollGameInput.Instance.OnStopAction += StopAction;
-            SideScrollGameInput.Instance.OnJumpAction += JumpAction;
+            _attackState = AttackState.Ready;
+            _attackCombo = 0;
+
+            GameInput.Instance.OnMoveAction += MoveAction;
+            GameInput.Instance.OnStopAction += StopAction;
+            GameInput.Instance.OnJumpAction += JumpAction;
+            GameInput.Instance.OnAttackAction += AttackAction;
             
             AdditionalStart();
         }
@@ -228,6 +287,7 @@ namespace Unity2dCookbook
             
             ApplyMove();
             ApplyJump();
+            
             AdditionalUpdate();
         }
         

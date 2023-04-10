@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity2dPlatformerCookbook.Scripts.Utils;
 using UnityEngine;
 
-namespace Unity2dCookbook
+namespace Unity2dPlatformerCookbook.Scripts.Animations
 {
     [RequireComponent(typeof(Animator))]
     [RequireComponent(typeof(SpriteRenderer))]
-    public class SideScrollAnimation : MonoBehaviour
+    public class EntityAnimator : MonoBehaviour
     {
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /// animator parameters

@@ -1,25 +1,26 @@
 using System;
 using UnityEngine;
 
-namespace Unity2dCookbook
+namespace Unity2dPlatformerCookbook.Scripts.Controls
 {
     public class MoveEventArgs : EventArgs
     {
         public Vector2 Value { get; set; }
     }
     
-    public sealed class SideScrollGameInput
+    public sealed class GameInput
     {
         public event EventHandler OnMoveAction;
         public event EventHandler OnStopAction;
         public event EventHandler OnJumpAction;
+        public event EventHandler OnAttackAction; 
         
-        private static SideScrollGameInput _instance = null;
+        private static GameInput _instance = null;
         private InputActions _inputActions;
 
         private bool _normalizedMovements;
 
-        private SideScrollGameInput()
+        private GameInput()
         {
             _inputActions = new InputActions();
             _inputActions.SideScrollPlayer.Enable();
@@ -29,6 +30,7 @@ namespace Unity2dCookbook
             _inputActions.SideScrollPlayer.Move.performed += MoveEvent;
             _inputActions.SideScrollPlayer.Move.canceled += StopEvent;
             _inputActions.SideScrollPlayer.Jump.performed += JumpEvent;
+            _inputActions.SideScrollPlayer.Attack.performed += AttackEvent;
         }
 
         private void MoveEvent(UnityEngine.InputSystem.InputAction.CallbackContext args)
@@ -51,12 +53,17 @@ namespace Unity2dCookbook
             OnJumpAction?.Invoke(this, EventArgs.Empty);
         }
 
-        public static SideScrollGameInput Instance {
+        private void AttackEvent(UnityEngine.InputSystem.InputAction.CallbackContext args)
+        {
+            OnAttackAction?.Invoke(this, EventArgs.Empty);
+        }
+
+        public static GameInput Instance {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new SideScrollGameInput();
+                    _instance = new GameInput();
                 }
                 return _instance;
             }

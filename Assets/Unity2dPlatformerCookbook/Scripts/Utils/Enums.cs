@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Unity2dCookbook
+namespace Unity2dPlatformerCookbook.Scripts.Utils
 {
     public enum Direction
     {
@@ -22,5 +22,12 @@ namespace Unity2dCookbook
         Grounded = 0,
         Jumping = 1,
         Falling = 2,
+    }
+
+    public enum AttackState
+    {
+        Ready = 0,
+        Attacking = 1,
+        Recovery = 2
     }
 }
