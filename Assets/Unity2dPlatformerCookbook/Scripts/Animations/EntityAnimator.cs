@@ -1,14 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using Unity2dPlatformerCookbook.Scripts.Utils;
 using UnityEngine;
 
 namespace Unity2dPlatformerCookbook.Scripts.Animations
 {
+    public class AnimationEventArgs : EventArgs
+    {
+        public string name { get; set; }
+    }
+    
     [RequireComponent(typeof(Animator))]
     [RequireComponent(typeof(SpriteRenderer))]
     public class EntityAnimator : MonoBehaviour
     {
+        public event EventHandler OnAnimationFinish;
+        
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /// animator parameters
         private const string ATTACKING = "Attacking";
@@ -24,11 +30,47 @@ namespace Unity2dPlatformerCookbook.Scripts.Animations
         private bool _moving;
         private bool _jumping;
         private bool _falling;
+        
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// event delegates
 
-        public void Moving(bool m) { _moving = m; }
-        public void Jumping(bool m) { _jumping = m; }
-        public void Falling(bool m) { _falling = m; }
-        public void Facing(Direction d) { _facing = d; }
+        public void AnimationFinished(string name)
+        {
+            if (OnAnimationFinish is not null)
+            {
+                AnimationEventArgs args = new AnimationEventArgs();
+                args.name = name;
+                OnAnimationFinish(this, args);
+            }
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// setters
+        
+        public void Moving(bool m)
+        {
+            _moving = m;
+        }
+
+        public void Jumping(bool m)
+        {
+            _jumping = m;
+        }
+
+        public void Falling(bool m)
+        {
+            _falling = m;
+        }
+
+        public void Facing(Direction d)
+        {
+            _facing = d;
+        }
+
+        public void PlayAnimation(string animation)
+        {
+            _animator.Play(animation);
+        }
 
         private void Start()
         {
