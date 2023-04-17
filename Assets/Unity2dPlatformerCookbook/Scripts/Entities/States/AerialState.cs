@@ -69,12 +69,12 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
 
             if (_moveVelocity != 0f && _entity.JumpConfiguration().AerialMove)
             {   // allow some movement while in the air
-                _entity.Rigidbody2D().velocity = new Vector2(
-                    Mathf.Clamp(
-                        _entity.Rigidbody2D().velocity.x + (_moveVelocity > 0f ? 1f : -1f) * _entity.MoveConfiguration().AccelerationSpeed * Time.deltaTime,
-                        -_entity.MoveConfiguration().TopSpeed,
-                        _entity.MoveConfiguration().TopSpeed),
-                    _entity.Rigidbody2D().velocity.y);
+                ApplyMovementWithAcceleration();
+            }
+
+            if (_moveVelocity == 0f)
+            {   // stopped moving but do a slight drift due to being in air
+                ApplyStopWithDeceleration();
             }
 
             if (_grounded)

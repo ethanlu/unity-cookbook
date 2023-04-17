@@ -49,7 +49,50 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
 
             return hit.collider is not null;
         }
-        
+
+        protected void ApplyMovementInstantly()
+        {
+            _entity.Rigidbody2D().velocity = new Vector2(_moveVelocity, _entity.Rigidbody2D().velocity.y);
+        }
+
+        protected void ApplyMovementWithAcceleration()
+        {
+            _entity.Rigidbody2D().velocity = new Vector2(
+                Mathf.Clamp(
+                    _entity.Rigidbody2D().velocity.x + (_moveVelocity > 0f ? 1f : -1f) * _entity.MoveConfiguration().AccelerationSpeed * Time.deltaTime,
+                    -_entity.MoveConfiguration().TopSpeed,
+                    _entity.MoveConfiguration().TopSpeed),
+                _entity.Rigidbody2D().velocity.y);
+        }
+
+        protected void ApplyStopInstantly()
+        {
+            _entity.Rigidbody2D().velocity = new Vector2(0f, _entity.Rigidbody2D().velocity.y);
+        }
+
+        protected void ApplyStopWithDeceleration()
+        {
+            if (_entity.Rigidbody2D().velocity.x < 0f)
+            {
+                _entity.Rigidbody2D().velocity = new Vector2(
+                    Mathf.Clamp(
+                        _entity.Rigidbody2D().velocity.x + _entity.MoveConfiguration().DecelerationSpeed * Time.deltaTime,
+                        _entity.Rigidbody2D().velocity.x,
+                        _moveVelocity),
+                    _entity.Rigidbody2D().velocity.y);
+            }
+
+            if (_entity.Rigidbody2D().velocity.x > 0f)
+            {
+                _entity.Rigidbody2D().velocity = new Vector2(
+                    Mathf.Clamp(
+                        _entity.Rigidbody2D().velocity.x - _entity.MoveConfiguration().DecelerationSpeed * Time.deltaTime,
+                        _moveVelocity,
+                        _entity.Rigidbody2D().velocity.x),
+                    _entity.Rigidbody2D().velocity.y);
+            }
+        }
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // interface methods

@@ -53,45 +53,22 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
             {   // idling
                 if (_entity.MoveConfiguration().InstantTopSpeed)
                 {   // immediately stop
-                    _entity.Rigidbody2D().velocity = new Vector2(0f, _entity.Rigidbody2D().velocity.y);
+                    ApplyStopInstantly();
                 }
                 else
                 {   // decelerate to 0
-                    if (_entity.Rigidbody2D().velocity.x < 0f)
-                    {
-                        _entity.Rigidbody2D().velocity = new Vector2(
-                            Mathf.Clamp(
-                                _entity.Rigidbody2D().velocity.x + _entity.MoveConfiguration().DecelerationSpeed * Time.deltaTime,
-                                _entity.Rigidbody2D().velocity.x,
-                                _moveVelocity),
-                            _entity.Rigidbody2D().velocity.y);
-                    }
-
-                    if (_entity.Rigidbody2D().velocity.x > 0f)
-                    {
-                        _entity.Rigidbody2D().velocity = new Vector2(
-                            Mathf.Clamp(
-                                _entity.Rigidbody2D().velocity.x - _entity.MoveConfiguration().DecelerationSpeed * Time.deltaTime,
-                                _moveVelocity,
-                                _entity.Rigidbody2D().velocity.x),
-                            _entity.Rigidbody2D().velocity.y);
-                    }
+                    ApplyStopWithDeceleration();
                 }
             }
             else
             {   // moving
                 if (_entity.MoveConfiguration().InstantTopSpeed)
                 {   // immediately move
-                    _entity.Rigidbody2D().velocity = new Vector2(_moveVelocity, _entity.Rigidbody2D().velocity.y);
+                    ApplyMovementInstantly();
                 }
                 else
                 {   // acclerate to move velocity
-                    _entity.Rigidbody2D().velocity = new Vector2(
-                        Mathf.Clamp(
-                            _entity.Rigidbody2D().velocity.x + (_moveVelocity > 0f ? 1f : -1f) * _entity.MoveConfiguration().AccelerationSpeed * Time.deltaTime,
-                            -_entity.MoveConfiguration().TopSpeed,
-                            _entity.MoveConfiguration().TopSpeed),
-                        _entity.Rigidbody2D().velocity.y);
+                    ApplyMovementWithAcceleration();
                 }
             }
             
