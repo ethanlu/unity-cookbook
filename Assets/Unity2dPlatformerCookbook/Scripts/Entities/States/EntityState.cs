@@ -17,6 +17,9 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
         protected static float _jumpVelocity;
         protected static float _airJumpCount;
         
+        protected static int _attackSequence;
+        protected static bool _attackRecovery;
+
         public EntityState(Entity entity, EntityStateMachine stateMachine)
         {
             _entity = entity;
@@ -26,6 +29,38 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // event delegates
+        
+        public void StopAction(object sender, EventArgs args)
+        {
+            _moveVelocity = 0f;
+            _entity.EntityAnimator().Moving(false);
+        }
+        
+        public void MoveAction(object sender, EventArgs args)
+        {
+            _moveVelocity = ((MoveEventArgs) args).Value.x * _entity.MoveConfiguration().TopSpeed;
+            _facing = _moveVelocity > 0f ? Direction.Right : Direction.Left;
+            _entity.EntityAnimator().Moving(true);
+            _entity.EntityAnimator().Facing(_facing);
+        }
+
+        protected void JumpAction(object sender, EventArgs args)
+        {
+            if (_grounded || 
+                (_entity.JumpConfiguration().AirJump && 
+                 _entity.Rigidbody2D().velocity.y > -_entity.JumpConfiguration().AirJumpWindow && 
+                 _entity.Rigidbody2D().velocity.y < _entity.JumpConfiguration().AirJumpWindow && 
+                 _airJumpCount < _entity.JumpConfiguration().MaxAirJumps))
+            {   // only allow jump if we are grounded or double jump is enabled and we are around the apex of the jump and we still have air jump charges available
+                _airJumpCount += _grounded ? 0 : 1;
+                _jumpVelocity = _entity.JumpConfiguration().JumpSpeed;
+                
+                _entity.EntityAnimator().Jumping(true);
+                _entity.EntityAnimator().Falling(false);
+                
+                _stateMachine.ChangeState(EntityStateMachine.AerialState);
+            }
+        }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

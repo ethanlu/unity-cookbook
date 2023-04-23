@@ -9,29 +9,15 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
     {
         public AerialState(Entity entity, EntityStateMachine stateMachine) : base(entity, stateMachine)
         {
-            GameInput.Instance.OnJumpAction += JumpAction;
         }
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // event delegates
         
-        protected void JumpAction(object sender, EventArgs args)
+        public void AttackAction(object sender, EventArgs args)
         {
-            if (_grounded || 
-                (_entity.JumpConfiguration().AirJump && 
-                 _entity.Rigidbody2D().velocity.y > -_entity.JumpConfiguration().AirJumpWindow && 
-                 _entity.Rigidbody2D().velocity.y < _entity.JumpConfiguration().AirJumpWindow && 
-                 _airJumpCount < _entity.JumpConfiguration().MaxAirJumps))
-            {   // only allow jump if we are grounded or double jump is enabled and we are around the apex of the jump and we still have air jump charges available
-                _airJumpCount += _grounded ? 0 : 1;
-                _jumpVelocity = _entity.JumpConfiguration().JumpSpeed;
-                
-                _entity.EntityAnimator().Jumping(true);
-                _entity.EntityAnimator().Falling(false);
-                
-                _stateMachine.ChangeState(EntityStateMachine.AerialState);
-            }
+            
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,11 +27,21 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
         public override void Enter()
         {
             base.Enter();
+            
+            GameInput.Instance.OnStopAction += StopAction;
+            GameInput.Instance.OnMoveAction += MoveAction;
+            GameInput.Instance.OnJumpAction += JumpAction;
+            GameInput.Instance.OnAttackAction += AttackAction;
         }
 
         public override void Exit()
         {
             base.Exit();
+            
+            GameInput.Instance.OnStopAction -= StopAction;
+            GameInput.Instance.OnMoveAction -= MoveAction;
+            GameInput.Instance.OnJumpAction -= JumpAction;
+            GameInput.Instance.OnAttackAction -= AttackAction;
 
             _airJumpCount = 0;
             _jumpVelocity = 0f;
@@ -72,7 +68,7 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
                 ApplyMovementWithAcceleration();
             }
 
-            if (_moveVelocity == 0f)
+            if (_moveVelocity == 0f && _entity.JumpConfiguration().AerialMove)
             {   // stopped moving but do a slight drift due to being in air
                 ApplyStopWithDeceleration();
             }

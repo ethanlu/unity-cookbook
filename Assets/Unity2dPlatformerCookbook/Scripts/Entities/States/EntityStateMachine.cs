@@ -17,12 +17,7 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
 
         public EntityStateMachine(Entity entity, string currentState)
         {
-            _states = new Dictionary<string, IEntityState>()
-            {
-                {InitialState, new InitialState(entity, this)},
-                {GroundedState, new GroundedState(entity, this)},
-                {AerialState, new AerialState(entity, this)},
-            };
+            _states = new Dictionary<string, IEntityState>();
             _current = currentState;
             _entity = entity;
             

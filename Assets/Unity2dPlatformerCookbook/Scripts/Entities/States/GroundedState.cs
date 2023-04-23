@@ -1,4 +1,5 @@
 using System;
+using Unity2dPlatformerCookbook.Scripts.Animations;
 using Unity2dPlatformerCookbook.Scripts.Controls;
 using Unity2dPlatformerCookbook.Scripts.Utils;
 using UnityEngine;
@@ -9,26 +10,49 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
     {
         public GroundedState(Entity entity, EntityStateMachine stateMachine) : base(entity, stateMachine)
         {
-            GameInput.Instance.OnStopAction += StopAction;
-            GameInput.Instance.OnMoveAction += MoveAction;
         }
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // event delegates
-
-        public void StopAction(object sender, EventArgs args)
+        
+        public void AttackAction(object sender, EventArgs args)
         {
-            _moveVelocity = 0f;
-            _entity.EntityAnimator().Moving(false);
+            switch (_attackSequence)
+            {
+                case 0:     // initial attack if not in recovery
+                    if (!_attackRecovery)
+                    {
+                        _attackSequence++;
+                        _entity.EntityAnimator().Attack(_attackSequence);
+                    }
+                    break;
+                case 1:     // combo attack if we are in recovery phase
+                    if (_attackRecovery)
+                    {
+                        _attackSequence++;
+                        _entity.EntityAnimator().Attack(_attackSequence);
+                    }
+                    break;
+                default:
+                    _attackSequence = 0;
+                    break;
+            }
         }
         
-        public void MoveAction(object sender, EventArgs args)
+        private void AnimationRecoveryEvent(object sender, EventArgs args)
         {
-            _moveVelocity = ((MoveEventArgs) args).Value.x * _entity.MoveConfiguration().TopSpeed;
-            _facing = _moveVelocity > 0f ? Direction.Right : Direction.Left;
-            _entity.EntityAnimator().Moving(true);
-            _entity.EntityAnimator().Facing(_facing);
+            switch (((AnimationEventArgs) args).name)
+            {
+                case "RecoveryStart":
+                    _attackRecovery = true;
+                    break;
+                case "RecoveryEnd":
+                    _attackRecovery = false;
+                    _attackSequence = 0;
+                    _entity.EntityAnimator().Attack(_attackSequence);
+                    break;
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,11 +62,25 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
         public override void Enter()
         {
             base.Enter();
+            
+            GameInput.Instance.OnStopAction += StopAction;
+            GameInput.Instance.OnMoveAction += MoveAction;
+            GameInput.Instance.OnJumpAction += JumpAction;
+            GameInput.Instance.OnAttackAction += AttackAction;
+            
+            _entity.EntityAnimator().OnAnimationEvent += AnimationRecoveryEvent;
         }
 
         public override void Exit()
         {
             base.Exit();
+            
+            GameInput.Instance.OnStopAction -= StopAction;
+            GameInput.Instance.OnMoveAction -= MoveAction;
+            GameInput.Instance.OnJumpAction -= JumpAction;
+            GameInput.Instance.OnAttackAction -= AttackAction;
+            
+            _entity.EntityAnimator().OnAnimationEvent -= AnimationRecoveryEvent;
         }
 
         public override void Update()

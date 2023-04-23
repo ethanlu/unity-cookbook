@@ -11,6 +11,10 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
         {
         }
         
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // event delegates
+        
         private void InitialAnimationFinish(object sender, EventArgs args)
         {
             if (((AnimationEventArgs) args).name == EntityStateMachine.InitialState)
@@ -18,16 +22,26 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
                 _stateMachine.ChangeState(EntityStateMachine.GroundedState);
             }
         }
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // interface methods
 
         public override void Enter()
         {
             base.Enter();
 
+            _moveVelocity = 0f;
+            _jumpVelocity = 0f;
+            _airJumpCount = 0;
+            _facing = Direction.Right;
+            _attackSequence = 0;
+
             _entity.EntityAnimator().Starting(true);
             _entity.EntityAnimator().Moving(false);
             _entity.EntityAnimator().Jumping(false);
-            _entity.EntityAnimator().Facing(Direction.Right);
-            _entity.EntityAnimator().OnAnimationFinish += InitialAnimationFinish;
+            _entity.EntityAnimator().Facing(_facing);
+            _entity.EntityAnimator().OnAnimationEvent += InitialAnimationFinish;
         }
 
         public override void Exit()
@@ -36,7 +50,7 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
             
             _entity.EntityAnimator().Starting(false);
             _entity.EntityAnimator().PlayAnimation("Idle");
-            _entity.EntityAnimator().OnAnimationFinish -= InitialAnimationFinish;
+            _entity.EntityAnimator().OnAnimationEvent -= InitialAnimationFinish;
         }
 
         public override void Update()

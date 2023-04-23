@@ -13,7 +13,7 @@ namespace Unity2dPlatformerCookbook.Scripts.Animations
     [RequireComponent(typeof(SpriteRenderer))]
     public class EntityAnimator : MonoBehaviour
     {
-        public event EventHandler OnAnimationFinish;
+        public event EventHandler OnAnimationEvent;
         
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /// animator parameters
@@ -35,13 +35,13 @@ namespace Unity2dPlatformerCookbook.Scripts.Animations
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /// event delegates
 
-        public void AnimationFinished(string name)
+        public void AnimationEvent(string name)
         {
-            if (OnAnimationFinish is not null)
+            if (OnAnimationEvent is not null)
             {
                 AnimationEventArgs args = new AnimationEventArgs();
                 args.name = name;
-                OnAnimationFinish(this, args);
+                OnAnimationEvent(this, args);
             }
         }
 
@@ -71,6 +71,11 @@ namespace Unity2dPlatformerCookbook.Scripts.Animations
         public void Starting(bool s)
         {
             _animator.SetBool(STARTING, s);
+        }
+
+        public void Attack(int a)
+        {
+            _animator.SetInteger(ATTACKING, a);
         }
 
         public void PlayAnimation(string animation)
