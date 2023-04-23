@@ -1,5 +1,6 @@
 using System;
 using Unity2dPlatformerCookbook.Scripts.Animations;
+using Unity2dPlatformerCookbook.Scripts.Utils;
 using UnityEngine;
 
 namespace Unity2dPlatformerCookbook.Scripts.Entities.States
@@ -21,7 +22,11 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
         public override void Enter()
         {
             base.Enter();
-            
+
+            _entity.EntityAnimator().Starting(true);
+            _entity.EntityAnimator().Moving(false);
+            _entity.EntityAnimator().Jumping(false);
+            _entity.EntityAnimator().Facing(Direction.Right);
             _entity.EntityAnimator().OnAnimationFinish += InitialAnimationFinish;
         }
 
@@ -29,6 +34,7 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
         {
             base.Exit();
             
+            _entity.EntityAnimator().Starting(false);
             _entity.EntityAnimator().PlayAnimation("Idle");
             _entity.EntityAnimator().OnAnimationFinish -= InitialAnimationFinish;
         }

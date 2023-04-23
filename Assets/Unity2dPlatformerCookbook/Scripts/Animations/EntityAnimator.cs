@@ -17,6 +17,7 @@ namespace Unity2dPlatformerCookbook.Scripts.Animations
         
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /// animator parameters
+        private const string STARTING = "Starting";
         private const string ATTACKING = "Attacking";
         private const string FALLING = "Falling";
         private const string JUMPING = "Jumping";
@@ -52,19 +53,24 @@ namespace Unity2dPlatformerCookbook.Scripts.Animations
             _moving = m;
         }
 
-        public void Jumping(bool m)
+        public void Jumping(bool j)
         {
-            _jumping = m;
+            _jumping = j;
         }
 
-        public void Falling(bool m)
+        public void Falling(bool f)
         {
-            _falling = m;
+            _falling = f;
         }
 
         public void Facing(Direction d)
         {
             _facing = d;
+        }
+
+        public void Starting(bool s)
+        {
+            _animator.SetBool(STARTING, s);
         }
 
         public void PlayAnimation(string animation)
@@ -76,10 +82,6 @@ namespace Unity2dPlatformerCookbook.Scripts.Animations
         {
             _animator = GetComponent<Animator>();
             _spriteRenderer = GetComponent<SpriteRenderer>();
-            _moving = false;
-            _jumping = false;
-            _falling = false;
-            _facing = Direction.Right;
         }
         
         private void Update()
