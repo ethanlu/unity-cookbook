@@ -1,4 +1,5 @@
 using System;
+using Unity2dPlatformerCookbook.Scripts.Animations;
 using Unity2dPlatformerCookbook.Scripts.Controls;
 using Unity2dPlatformerCookbook.Scripts.Utils;
 using UnityEngine;
@@ -17,7 +18,23 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
         
         public void AttackAction(object sender, EventArgs args)
         {
-            
+            if (_attackSequence == 0 && 
+                _entity.Rigidbody2D().velocity.y < 0f)
+            {
+                _attackSequence = 2;
+                _entity.EntityAnimator().Attack(_attackSequence);
+            }
+        }
+        
+        private void AnimationRecoveryEvent(object sender, EventArgs args)
+        {
+            switch (((AnimationEventArgs) args).name)
+            {
+                case "RecoveryEnd":
+                    _attackSequence = 0;
+                    _entity.EntityAnimator().Attack(_attackSequence);
+                    break;
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,6 +49,8 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
             GameInput.Instance.OnMoveAction += MoveAction;
             GameInput.Instance.OnJumpAction += JumpAction;
             GameInput.Instance.OnAttackAction += AttackAction;
+            
+            _entity.EntityAnimator().OnAnimationEvent += AnimationRecoveryEvent;
         }
 
         public override void Exit()
@@ -42,6 +61,8 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
             GameInput.Instance.OnMoveAction -= MoveAction;
             GameInput.Instance.OnJumpAction -= JumpAction;
             GameInput.Instance.OnAttackAction -= AttackAction;
+            
+            _entity.EntityAnimator().OnAnimationEvent -= AnimationRecoveryEvent;
 
             _airJumpCount = 0;
             _jumpVelocity = 0f;
@@ -75,6 +96,8 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
 
             if (_grounded)
             {
+                _attackSequence = 0;
+                _entity.EntityAnimator().Attack(_attackSequence);
                 _stateMachine.ChangeState(EntityStateMachine.GroundedState);
             }
         }
