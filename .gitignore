@@ -12,6 +12,7 @@
 
 # only keep common code for now
 /[Aa]ssets/Animations*
+/[Aa]ssets/Data*
 /[Aa]ssets/Scenes*
 /[Aa]ssets/Scripts*
 /[Aa]ssets/Settings*
