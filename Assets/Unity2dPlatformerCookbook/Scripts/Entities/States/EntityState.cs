@@ -14,6 +14,7 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
         protected static Direction _facing;
         
         protected static float _moveVelocity;
+        protected static float _pausedMoveVelocity;
         protected static float _jumpVelocity;
         protected static float _airJumpCount;
         
@@ -33,6 +34,7 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
         public void StopAction(object sender, EventArgs args)
         {
             _moveVelocity = 0f;
+            _pausedMoveVelocity = 0f;
             _entity.EntityAnimator().Moving(false);
         }
         
@@ -46,11 +48,11 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
 
         protected void JumpAction(object sender, EventArgs args)
         {
-            if (_grounded || 
+            if (_attackSequence == 0 && (_grounded || 
                 (_entity.JumpConfiguration().AirJump && 
                  _entity.Rigidbody2D().velocity.y > -_entity.JumpConfiguration().AirJumpWindow && 
                  _entity.Rigidbody2D().velocity.y < _entity.JumpConfiguration().AirJumpWindow && 
-                 _airJumpCount < _entity.JumpConfiguration().MaxAirJumps))
+                 _airJumpCount < _entity.JumpConfiguration().MaxAirJumps)))
             {   // only allow jump if we are grounded or double jump is enabled and we are around the apex of the jump and we still have air jump charges available
                 _airJumpCount += _grounded ? 0 : 1;
                 _jumpVelocity = _entity.JumpConfiguration().JumpSpeed;
@@ -125,6 +127,25 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
                         _moveVelocity,
                         _entity.Rigidbody2D().velocity.x),
                     _entity.Rigidbody2D().velocity.y);
+            }
+        }
+        
+        
+        protected void InterruptMove()
+        {
+            if (_moveVelocity != 0f && _attackSequence > 0 && !_entity.AttackConfiguration().AttackMove)
+            {   // if attack move is not enabled, stop move velocity
+                _pausedMoveVelocity = _moveVelocity;
+                _moveVelocity = 0f;
+            }
+        }
+
+        protected void ResumeMove()
+        {
+            if (_pausedMoveVelocity != 0f)
+            {
+                _moveVelocity = _pausedMoveVelocity;
+                _pausedMoveVelocity = 0f;
             }
         }
 

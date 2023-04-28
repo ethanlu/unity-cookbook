@@ -17,7 +17,7 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
         
         private void InitialAnimationFinish(object sender, EventArgs args)
         {
-            if (((AnimationEventArgs) args).name == EntityStateMachine.InitialState)
+            if (((AnimationEventArgs) args).param1 == EntityStateMachine.InitialState)
             {   // initial animation finished...go to idle state
                 _stateMachine.ChangeState(EntityStateMachine.GroundedState);
             }

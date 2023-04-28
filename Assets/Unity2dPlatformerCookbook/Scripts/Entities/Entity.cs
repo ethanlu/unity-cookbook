@@ -1,64 +1,13 @@
 using System;
 using Unity2dPlatformerCookbook.Scripts.Animations;
 using Unity2dPlatformerCookbook.Scripts.Controls;
+using Unity2dPlatformerCookbook.Scripts.Entities.Data;
 using Unity2dPlatformerCookbook.Scripts.Entities.States;
 using Unity2dPlatformerCookbook.Scripts.Utils;
 using UnityEngine;
 
 namespace Unity2dPlatformerCookbook.Scripts.Entities
 {
-    [Serializable]
-    public class MoveConfiguration
-    {
-        public MoveConfiguration()
-        {
-            InstantTopSpeed = true;
-            TopSpeed = 4f;
-            AccelerationSpeed = 10f;
-            DecelerationSpeed = 15f;
-        }
-
-        public bool InstantTopSpeed;
-        public float TopSpeed;
-        public float AccelerationSpeed;
-        public float DecelerationSpeed;
-    }
-    
-    [Serializable]
-    public class JumpConfiguration
-    {
-        public JumpConfiguration()
-        {
-            JumpSpeed = 10f;
-            AirJump = true;
-            MaxAirJumps = 1;
-            AirJumpWindow = 2f;
-            AerialMove = true;
-            GroundDistance = .5f;
-        }
-
-        public LayerMask GroundLayer;
-        public float JumpSpeed;
-        public bool AirJump;
-        public int MaxAirJumps;
-        public float AirJumpWindow;
-        public bool AerialMove;
-        public float GroundDistance;
-    }
-
-    [Serializable]
-    public class AttackConfiguration
-    {
-        public AttackConfiguration()
-        {
-            AttackMove = false;
-            ComboWindow = 1f;
-        }
-
-        public bool AttackMove;
-        public float ComboWindow;
-    }
-
     [RequireComponent(typeof(BoxCollider2D))]
     [RequireComponent(typeof(Rigidbody2D))]
     public class Entity : MonoBehaviour

@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Annotations;
 using Unity2dPlatformerCookbook.Scripts.Utils;
 using UnityEngine;
 
@@ -6,7 +7,8 @@ namespace Unity2dPlatformerCookbook.Scripts.Animations
 {
     public class AnimationEventArgs : EventArgs
     {
-        public string name { get; set; }
+        public string param1 { get; set; }
+        public string param2 { get; set; }
     }
     
     [RequireComponent(typeof(Animator))]
@@ -18,7 +20,8 @@ namespace Unity2dPlatformerCookbook.Scripts.Animations
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /// animator parameters
         private const string STARTING = "Starting";
-        private const string ATTACKING = "Attacking";
+        private const string GROUNDATTACKING = "GroundAttacking";
+        private const string AIRATTACKING = "AirAttacking";
         private const string FALLING = "Falling";
         private const string JUMPING = "Jumping";
         private const string MOVING = "Moving";
@@ -35,12 +38,14 @@ namespace Unity2dPlatformerCookbook.Scripts.Animations
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /// event delegates
 
-        public void AnimationEvent(string name)
+        public void AnimationEvent(string value)
         {
             if (OnAnimationEvent is not null)
             {
+                var parameters = value.Split(",");
                 AnimationEventArgs args = new AnimationEventArgs();
-                args.name = name;
+                args.param1 = parameters[0];
+                args.param2 = (parameters.Length > 1) ? parameters[1] : "";
                 OnAnimationEvent(this, args);
             }
         }
@@ -73,9 +78,14 @@ namespace Unity2dPlatformerCookbook.Scripts.Animations
             _animator.SetBool(STARTING, s);
         }
 
-        public void Attack(int a)
+        public void GroundAttacking(int a)
         {
-            _animator.SetInteger(ATTACKING, a);
+            _animator.SetInteger(GROUNDATTACKING, a);
+        }
+        
+        public void AirAttacking(int a)
+        {
+            _animator.SetInteger(AIRATTACKING, a);
         }
 
         public void PlayAnimation(string animation)

@@ -24,25 +24,44 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
                     if (!_attackRecovery)
                     {
                         _attackSequence++;
-                        _entity.EntityAnimator().Attack(_attackSequence);
+                        _attackRecovery = false;
+                        _entity.EntityAnimator().GroundAttacking(_attackSequence);
                     }
                     break;
                 case 1:     // combo attack if we are in recovery phase
                     if (_attackRecovery)
                     {
                         _attackSequence++;
-                        _entity.EntityAnimator().Attack(_attackSequence);
+                        _attackRecovery = false;
+                        _entity.EntityAnimator().GroundAttacking(_attackSequence);
+                    }
+                    break;
+                case 2:     // combo attack if we are in recovery phase
+                    if (_attackRecovery)
+                    {
+                        _attackSequence = 1;
+                        _attackRecovery = false;
+
+                        _jumpVelocity = _entity.JumpConfiguration().JumpSpeed;
+                        _entity.EntityAnimator().Jumping(true);
+
+                        _entity.EntityAnimator().AirAttacking(_attackSequence);
+                        _entity.EntityAnimator().GroundAttacking(0);
+
+                        _stateMachine.ChangeState(EntityStateMachine.AerialState);
                     }
                     break;
                 default:
                     _attackSequence = 0;
                     break;
             }
+
+            InterruptMove();
         }
         
         private void AnimationRecoveryEvent(object sender, EventArgs args)
         {
-            switch (((AnimationEventArgs) args).name)
+            switch (((AnimationEventArgs) args).param1)
             {
                 case "RecoveryStart":
                     _attackRecovery = true;
@@ -50,7 +69,9 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
                 case "RecoveryEnd":
                     _attackRecovery = false;
                     _attackSequence = 0;
-                    _entity.EntityAnimator().Attack(_attackSequence);
+                    _entity.EntityAnimator().GroundAttacking(_attackSequence);
+
+                    ResumeMove();
                     break;
             }
         }
@@ -62,19 +83,20 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
         public override void Enter()
         {
             base.Enter();
-            
+
             GameInput.Instance.OnStopAction += StopAction;
             GameInput.Instance.OnMoveAction += MoveAction;
             GameInput.Instance.OnJumpAction += JumpAction;
             GameInput.Instance.OnAttackAction += AttackAction;
             
             _entity.EntityAnimator().OnAnimationEvent += AnimationRecoveryEvent;
+            ResumeMove();
         }
 
         public override void Exit()
         {
             base.Exit();
-            
+
             GameInput.Instance.OnStopAction -= StopAction;
             GameInput.Instance.OnMoveAction -= MoveAction;
             GameInput.Instance.OnJumpAction -= JumpAction;

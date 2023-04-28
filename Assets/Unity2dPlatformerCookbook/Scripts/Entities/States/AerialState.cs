@@ -18,21 +18,30 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
         
         public void AttackAction(object sender, EventArgs args)
         {
-            if (_attackSequence == 0 && 
-                _entity.Rigidbody2D().velocity.y < 0f)
+            switch (_attackSequence)
             {
-                _attackSequence = 2;
-                _entity.EntityAnimator().Attack(_attackSequence);
+                case 0: // non-combo attack
+                    _attackSequence = 2;
+                    _entity.EntityAnimator().AirAttacking(_attackSequence);
+                    break;
+                case 1: // combo attack
+                    _attackSequence = 2;
+                    _entity.EntityAnimator().AirAttacking(_attackSequence);
+                    break;
+                default:
+                    _attackSequence = 0;
+                    break;
             }
         }
         
         private void AnimationRecoveryEvent(object sender, EventArgs args)
         {
-            switch (((AnimationEventArgs) args).name)
+            switch (((AnimationEventArgs) args).param1)
             {
                 case "RecoveryEnd":
                     _attackSequence = 0;
-                    _entity.EntityAnimator().Attack(_attackSequence);
+                    _entity.EntityAnimator().AirAttacking(_attackSequence);
+                    ResumeMove();
                     break;
             }
         }
@@ -44,7 +53,7 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
         public override void Enter()
         {
             base.Enter();
-            
+
             GameInput.Instance.OnStopAction += StopAction;
             GameInput.Instance.OnMoveAction += MoveAction;
             GameInput.Instance.OnJumpAction += JumpAction;
@@ -56,7 +65,7 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
         public override void Exit()
         {
             base.Exit();
-            
+
             GameInput.Instance.OnStopAction -= StopAction;
             GameInput.Instance.OnMoveAction -= MoveAction;
             GameInput.Instance.OnJumpAction -= JumpAction;
@@ -93,11 +102,11 @@ namespace Unity2dPlatformerCookbook.Scripts.Entities.States
             {   // stopped moving but do a slight drift due to being in air
                 ApplyStopWithDeceleration();
             }
-
-            if (_grounded)
+            
+            if (_grounded && _jumpVelocity == 0f && _entity.Rigidbody2D().velocity.y == 0f)
             {
                 _attackSequence = 0;
-                _entity.EntityAnimator().Attack(_attackSequence);
+                _entity.EntityAnimator().AirAttacking(_attackSequence);
                 _stateMachine.ChangeState(EntityStateMachine.GroundedState);
             }
         }
