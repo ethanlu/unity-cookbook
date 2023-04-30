@@ -632,7 +632,7 @@ GameObject:
   - component: {fileID: 513859010}
   - component: {fileID: 513859011}
   - component: {fileID: 513859012}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: DummyVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1240,7 +1240,7 @@ GameObject:
   - component: {fileID: 1151802516}
   - component: {fileID: 1151802515}
   - component: {fileID: 1151802514}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Dummy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
