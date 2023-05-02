@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace Entities.States
 {
-    public class EntityState : IEntityState
+    public class PlayerState : IEntityState
     {
-        protected Entity _entity;
-        protected EntityStateMachine _stateMachine;
+        protected Player _player;
+        protected PlayerStateMachine _stateMachine;
 
         protected static bool _grounded;
         protected static Direction _facing;
@@ -21,9 +21,9 @@ namespace Entities.States
         protected static int _attackSequence;
         protected static bool _attackRecovery;
 
-        public EntityState(Entity entity, EntityStateMachine stateMachine)
+        public PlayerState(Player player, PlayerStateMachine stateMachine)
         {
-            _entity = entity;
+            _player = player;
             _stateMachine = stateMachine;
         }
         
@@ -35,35 +35,35 @@ namespace Entities.States
         {
             _moveVelocity = 0f;
             _pausedMoveVelocity = 0f;
-            _entity.EntityAnimator().Moving(false);
+            _player.PlayerAnimator().Moving(false);
         }
         
         public void MoveAction(object sender, EventArgs args)
         {
             if (_attackSequence == 0)
             {   // must be not attacking
-                _moveVelocity = ((MoveEventArgs) args).Value.x * _entity.MoveConfiguration().TopSpeed;
+                _moveVelocity = ((MoveEventArgs) args).Value.x * _player.MoveConfiguration().TopSpeed;
                 _facing = _moveVelocity > 0f ? Direction.Right : Direction.Left;
-                _entity.EntityAnimator().Moving(true);
-                _entity.EntityAnimator().Facing(_facing);
+                _player.PlayerAnimator().Moving(true);
+                _player.PlayerAnimator().Facing(_facing);
             }
         }
 
         protected void JumpAction(object sender, EventArgs args)
         {
             if (_attackSequence == 0 && (_grounded || 
-                (_entity.JumpConfiguration().AirJump && 
-                 _entity.Rigidbody2D().velocity.y > -_entity.JumpConfiguration().AirJumpWindow && 
-                 _entity.Rigidbody2D().velocity.y < _entity.JumpConfiguration().AirJumpWindow && 
-                 _airJumpCount < _entity.JumpConfiguration().MaxAirJumps)))
+                (_player.JumpConfiguration().AirJump && 
+                 _player.Rigidbody2D().velocity.y > -_player.JumpConfiguration().AirJumpWindow && 
+                 _player.Rigidbody2D().velocity.y < _player.JumpConfiguration().AirJumpWindow && 
+                 _airJumpCount < _player.JumpConfiguration().MaxAirJumps)))
             {   // only allow jump if we are grounded or double jump is enabled and we are around the apex of the jump and we still have air jump charges available
                 _airJumpCount += _grounded ? 0 : 1;
-                _jumpVelocity = _entity.JumpConfiguration().JumpSpeed;
+                _jumpVelocity = _player.JumpConfiguration().JumpSpeed;
                 
-                _entity.EntityAnimator().Jumping(true);
-                _entity.EntityAnimator().Falling(false);
+                _player.PlayerAnimator().Jumping(true);
+                _player.PlayerAnimator().Falling(false);
                 
-                _stateMachine.ChangeState(EntityStateMachine.AerialState);
+                _stateMachine.ChangeState(PlayerStateMachine.AerialState);
             }
         }
 
@@ -74,16 +74,16 @@ namespace Entities.States
         protected bool IsGrounded()
         {
             RaycastHit2D hit = Physics2D.BoxCast(
-                _entity.BoxCollider2D().bounds.center, 
-                _entity.BoxCollider2D().bounds.size, 0, Vector2.down, 
-                _entity.JumpConfiguration().GroundDistance, 
-                _entity.JumpConfiguration().GroundLayer
+                _player.BoxCollider2D().bounds.center, 
+                _player.BoxCollider2D().bounds.size, 0, Vector2.down, 
+                _player.JumpConfiguration().GroundDistance, 
+                _player.JumpConfiguration().GroundLayer
             );
 
             // draw a debug line at the bottom of the object representing what the box raycast would be hitting
             Debug.DrawLine(
-                new Vector3(_entity.Rigidbody2D().position.x - _entity.BoxCollider2D().bounds.extents.x, _entity.Rigidbody2D().position.y - _entity.JumpConfiguration().GroundDistance),
-                new Vector3(_entity.Rigidbody2D().position.x + _entity.BoxCollider2D().bounds.extents.x, _entity.Rigidbody2D().position.y - _entity.JumpConfiguration().GroundDistance),
+                new Vector3(_player.Rigidbody2D().position.x - _player.BoxCollider2D().bounds.extents.x, _player.Rigidbody2D().position.y - _player.JumpConfiguration().GroundDistance),
+                new Vector3(_player.Rigidbody2D().position.x + _player.BoxCollider2D().bounds.extents.x, _player.Rigidbody2D().position.y - _player.JumpConfiguration().GroundDistance),
                 hit.collider is null ? Color.green : Color.red
             );
 
@@ -92,51 +92,51 @@ namespace Entities.States
 
         protected void ApplyMovementInstantly()
         {
-            _entity.Rigidbody2D().velocity = new Vector2(_moveVelocity, _entity.Rigidbody2D().velocity.y);
+            _player.Rigidbody2D().velocity = new Vector2(_moveVelocity, _player.Rigidbody2D().velocity.y);
         }
 
         protected void ApplyMovementWithAcceleration()
         {
-            _entity.Rigidbody2D().velocity = new Vector2(
+            _player.Rigidbody2D().velocity = new Vector2(
                 Mathf.Clamp(
-                    _entity.Rigidbody2D().velocity.x + (_moveVelocity > 0f ? 1f : -1f) * _entity.MoveConfiguration().AccelerationSpeed * Time.deltaTime,
-                    -_entity.MoveConfiguration().TopSpeed,
-                    _entity.MoveConfiguration().TopSpeed),
-                _entity.Rigidbody2D().velocity.y);
+                    _player.Rigidbody2D().velocity.x + (_moveVelocity > 0f ? 1f : -1f) * _player.MoveConfiguration().AccelerationSpeed * Time.deltaTime,
+                    -_player.MoveConfiguration().TopSpeed,
+                    _player.MoveConfiguration().TopSpeed),
+                _player.Rigidbody2D().velocity.y);
         }
 
         protected void ApplyStopInstantly()
         {
-            _entity.Rigidbody2D().velocity = new Vector2(0f, _entity.Rigidbody2D().velocity.y);
+            _player.Rigidbody2D().velocity = new Vector2(0f, _player.Rigidbody2D().velocity.y);
         }
 
         protected void ApplyStopWithDeceleration()
         {
-            if (_entity.Rigidbody2D().velocity.x < 0f)
+            if (_player.Rigidbody2D().velocity.x < 0f)
             {
-                _entity.Rigidbody2D().velocity = new Vector2(
+                _player.Rigidbody2D().velocity = new Vector2(
                     Mathf.Clamp(
-                        _entity.Rigidbody2D().velocity.x + _entity.MoveConfiguration().DecelerationSpeed * Time.deltaTime,
-                        _entity.Rigidbody2D().velocity.x,
+                        _player.Rigidbody2D().velocity.x + _player.MoveConfiguration().DecelerationSpeed * Time.deltaTime,
+                        _player.Rigidbody2D().velocity.x,
                         _moveVelocity),
-                    _entity.Rigidbody2D().velocity.y);
+                    _player.Rigidbody2D().velocity.y);
             }
 
-            if (_entity.Rigidbody2D().velocity.x > 0f)
+            if (_player.Rigidbody2D().velocity.x > 0f)
             {
-                _entity.Rigidbody2D().velocity = new Vector2(
+                _player.Rigidbody2D().velocity = new Vector2(
                     Mathf.Clamp(
-                        _entity.Rigidbody2D().velocity.x - _entity.MoveConfiguration().DecelerationSpeed * Time.deltaTime,
+                        _player.Rigidbody2D().velocity.x - _player.MoveConfiguration().DecelerationSpeed * Time.deltaTime,
                         _moveVelocity,
-                        _entity.Rigidbody2D().velocity.x),
-                    _entity.Rigidbody2D().velocity.y);
+                        _player.Rigidbody2D().velocity.x),
+                    _player.Rigidbody2D().velocity.y);
             }
         }
         
         
         protected void InterruptMove()
         {
-            if (_moveVelocity != 0f && _attackSequence > 0 && !_entity.AttackConfiguration().AttackMove)
+            if (_moveVelocity != 0f && _attackSequence > 0 && !_player.AttackConfiguration().AttackMove)
             {   // if attack move is not enabled, stop move velocity
                 _pausedMoveVelocity = _moveVelocity;
                 _moveVelocity = 0f;

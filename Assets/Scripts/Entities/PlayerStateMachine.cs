@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Entities
 {
-    public class EntityStateMachine
+    public class PlayerStateMachine
     {
         public const string InitialState = "Initial";
         public const string GroundedState = "Grounded";
@@ -14,13 +14,13 @@ namespace Entities
         private Dictionary<string, IEntityState> _states;
         private string _current;
 
-        private Entity _entity;
+        private Player _player;
 
-        public EntityStateMachine(Entity entity, string currentState)
+        public PlayerStateMachine(Player entity, string currentState)
         {
             _states = new Dictionary<string, IEntityState>();
             _current = currentState;
-            _entity = entity;
+            _player = entity;
             
             GetState(_current).Enter();
         }
@@ -35,7 +35,7 @@ namespace Entities
                     throw new Exception($"Could not load assembly : Entities.States.{state}State, Assembly-CSharp");
                 }
 
-                object[] parameters = {_entity, this};
+                object[] parameters = {_player, this};
                 var s = Activator.CreateInstance(state_class, parameters) as IEntityState;
                 if (s is null)
                 {

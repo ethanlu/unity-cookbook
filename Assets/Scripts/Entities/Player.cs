@@ -1,8 +1,6 @@
 using System;
 using Animations;
-using Controls;
 using Entities.Data;
-using Entities.States;
 using Utils;
 using UnityEngine;
 
@@ -10,7 +8,7 @@ namespace Entities
 {
     [RequireComponent(typeof(BoxCollider2D))]
     [RequireComponent(typeof(Rigidbody2D))]
-    public class Entity : MonoBehaviour
+    public class Player : MonoBehaviour
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,14 +26,14 @@ namespace Entities
         protected BoxCollider2D _boxCollider2D;
         protected Rigidbody2D _rigidbody2D;
 
-        protected EntityAnimator _entityAnimator;
+        protected PlayerAnimator _playerAnimator;
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // internal properties
 
         // states
-        protected EntityStateMachine _stateMachine;
+        protected PlayerStateMachine _stateMachine;
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,7 +43,7 @@ namespace Entities
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // getters
 
-        public EntityAnimator EntityAnimator() { return _entityAnimator; }
+        public PlayerAnimator PlayerAnimator() { return _playerAnimator; }
         public BoxCollider2D BoxCollider2D() { return _boxCollider2D; }
         public JumpConfiguration JumpConfiguration() { return _jumpConfiguration; }
         public MoveConfiguration MoveConfiguration() { return _moveConfiguration; }
@@ -63,41 +61,25 @@ namespace Entities
         
         protected void Awake()
         {
-            AdditionalAwake();
         }
 
         protected void Start()
         {
             _rigidbody2D = GetComponent<Rigidbody2D>();
             _boxCollider2D = GetComponent<BoxCollider2D>();
-            _entityAnimator = _visual.GetComponent<EntityAnimator>();
+            _playerAnimator = _visual.GetComponent<PlayerAnimator>();
 
-            _stateMachine = new EntityStateMachine(this, EntityStateMachine.InitialState);
-
-            AdditionalStart();
+            _stateMachine = new PlayerStateMachine(this, PlayerStateMachine.InitialState);
         }
         
         protected void Update()
         {
             _stateMachine.RunStateUpdate();
-
-            AdditionalUpdate();
         }
         
         protected void FixedUpdate()
         {
             _stateMachine.RunStateFixedUpdate();
-            
-            AdditionalFixedUpdate();
         }
-        
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // override these in subclass
-
-        protected virtual void AdditionalStart() { }
-        protected virtual void AdditionalAwake() { }
-        protected virtual void AdditionalUpdate() { }
-        protected virtual void AdditionalFixedUpdate() { }
     }
 }

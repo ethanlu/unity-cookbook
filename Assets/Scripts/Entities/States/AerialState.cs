@@ -6,9 +6,9 @@ using UnityEngine;
 
 namespace Entities.States
 {
-    public class AerialState : EntityState
+    public class AerialState : PlayerState
     {
-        public AerialState(Entity entity, EntityStateMachine stateMachine) : base(entity, stateMachine)
+        public AerialState(Player player, PlayerStateMachine stateMachine) : base(player, stateMachine)
         {
         }
         
@@ -22,11 +22,11 @@ namespace Entities.States
             {
                 case 0: // non-combo attack
                     _attackSequence = 2;
-                    _entity.EntityAnimator().AirAttacking(_attackSequence);
+                    _player.PlayerAnimator().AirAttacking(_attackSequence);
                     break;
                 case 1: // combo attack
                     _attackSequence = 2;
-                    _entity.EntityAnimator().AirAttacking(_attackSequence);
+                    _player.PlayerAnimator().AirAttacking(_attackSequence);
                     break;
                 default:
                     _attackSequence = 0;
@@ -40,7 +40,7 @@ namespace Entities.States
             {
                 case "RecoveryEnd":
                     _attackSequence = 0;
-                    _entity.EntityAnimator().AirAttacking(_attackSequence);
+                    _player.PlayerAnimator().AirAttacking(_attackSequence);
                     ResumeMove();
                     break;
             }
@@ -59,7 +59,7 @@ namespace Entities.States
             GameInput.Instance.OnJumpAction += JumpAction;
             GameInput.Instance.OnAttackAction += AttackAction;
             
-            _entity.EntityAnimator().OnAnimationEvent += AnimationRecoveryEvent;
+            _player.PlayerAnimator().OnAnimationEvent += AnimationRecoveryEvent;
         }
 
         public override void Exit()
@@ -71,7 +71,7 @@ namespace Entities.States
             GameInput.Instance.OnJumpAction -= JumpAction;
             GameInput.Instance.OnAttackAction -= AttackAction;
             
-            _entity.EntityAnimator().OnAnimationEvent -= AnimationRecoveryEvent;
+            _player.PlayerAnimator().OnAnimationEvent -= AnimationRecoveryEvent;
 
             _airJumpCount = 0;
             _jumpVelocity = 0f;
@@ -83,31 +83,31 @@ namespace Entities.States
             
             if (_jumpVelocity > 0f)
             {
-                _entity.Rigidbody2D().velocity += Vector2.up * _jumpVelocity;
+                _player.Rigidbody2D().velocity += Vector2.up * _jumpVelocity;
                 _jumpVelocity = 0f;
             }
 
-            if (_entity.Rigidbody2D().velocity.y < 0f)
+            if (_player.Rigidbody2D().velocity.y < 0f)
             {   // if vertical velocity is negative, then we must no longer be jumping and would be falling if we are not grounded
-                _entity.EntityAnimator().Jumping(false);
-                _entity.EntityAnimator().Falling(!_grounded);
+                _player.PlayerAnimator().Jumping(false);
+                _player.PlayerAnimator().Falling(!_grounded);
             }
 
-            if (_moveVelocity != 0f && _entity.JumpConfiguration().AerialMove)
+            if (_moveVelocity != 0f && _player.JumpConfiguration().AerialMove)
             {   // allow some movement while in the air
                 ApplyMovementWithAcceleration();
             }
 
-            if (_moveVelocity == 0f && _entity.JumpConfiguration().AerialMove)
+            if (_moveVelocity == 0f && _player.JumpConfiguration().AerialMove)
             {   // stopped moving but do a slight drift due to being in air
                 ApplyStopWithDeceleration();
             }
             
-            if (_grounded && _jumpVelocity == 0f && _entity.Rigidbody2D().velocity.y == 0f)
+            if (_grounded && _jumpVelocity == 0f && _player.Rigidbody2D().velocity.y == 0f)
             {
                 _attackSequence = 0;
-                _entity.EntityAnimator().AirAttacking(_attackSequence);
-                _stateMachine.ChangeState(EntityStateMachine.GroundedState);
+                _player.PlayerAnimator().AirAttacking(_attackSequence);
+                _stateMachine.ChangeState(PlayerStateMachine.GroundedState);
             }
         }
 

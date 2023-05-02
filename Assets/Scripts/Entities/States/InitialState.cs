@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace Entities.States
 {
-    public class InitialState : EntityState
+    public class InitialState : PlayerState
     {
-        public InitialState(Entity entity, EntityStateMachine stateMachine) : base(entity, stateMachine)
+        public InitialState(Player player, PlayerStateMachine stateMachine) : base(player, stateMachine)
         {
         }
         
@@ -17,9 +17,9 @@ namespace Entities.States
         
         private void InitialAnimationFinish(object sender, EventArgs args)
         {
-            if (((AnimationEventArgs) args).param1 == EntityStateMachine.InitialState)
+            if (((AnimationEventArgs) args).param1 == PlayerStateMachine.InitialState)
             {   // initial animation finished...go to idle state
-                _stateMachine.ChangeState(EntityStateMachine.GroundedState);
+                _stateMachine.ChangeState(PlayerStateMachine.GroundedState);
             }
         }
         
@@ -37,20 +37,20 @@ namespace Entities.States
             _facing = Direction.Right;
             _attackSequence = 0;
 
-            _entity.EntityAnimator().Starting(true);
-            _entity.EntityAnimator().Moving(false);
-            _entity.EntityAnimator().Jumping(false);
-            _entity.EntityAnimator().Facing(_facing);
-            _entity.EntityAnimator().OnAnimationEvent += InitialAnimationFinish;
+            _player.PlayerAnimator().Starting(true);
+            _player.PlayerAnimator().Moving(false);
+            _player.PlayerAnimator().Jumping(false);
+            _player.PlayerAnimator().Facing(_facing);
+            _player.PlayerAnimator().OnAnimationEvent += InitialAnimationFinish;
         }
 
         public override void Exit()
         {
             base.Exit();
             
-            _entity.EntityAnimator().Starting(false);
-            _entity.EntityAnimator().PlayAnimation("Idle");
-            _entity.EntityAnimator().OnAnimationEvent -= InitialAnimationFinish;
+            _player.PlayerAnimator().Starting(false);
+            _player.PlayerAnimator().PlayAnimation("Idle");
+            _player.PlayerAnimator().OnAnimationEvent -= InitialAnimationFinish;
         }
 
         public override void Update()

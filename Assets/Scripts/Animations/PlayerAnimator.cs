@@ -1,4 +1,6 @@
 using System;
+using Entities;
+using Unity.VisualScripting;
 using Utils;
 using UnityEngine;
 
@@ -12,8 +14,10 @@ namespace Animations
     
     [RequireComponent(typeof(Animator))]
     [RequireComponent(typeof(SpriteRenderer))]
-    public class EntityAnimator : MonoBehaviour
+    public class PlayerAnimator : MonoBehaviour
     {
+        public const string HitBox = "PlayerHitBox";
+        
         public event EventHandler OnAnimationEvent;
         
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,6 +32,7 @@ namespace Animations
 
         private Animator _animator;
         private SpriteRenderer _spriteRenderer;
+        private Transform _hitboxTransform;
         
         private Direction _facing;
         private bool _moving;
@@ -55,21 +60,30 @@ namespace Animations
         public void Moving(bool m)
         {
             _moving = m;
+            _animator.SetBool(MOVING, _moving);
         }
 
         public void Jumping(bool j)
         {
             _jumping = j;
+            _animator.SetBool(JUMPING, _jumping);
         }
 
         public void Falling(bool f)
         {
             _falling = f;
+            _animator.SetBool(FALLING, _falling);
         }
 
         public void Facing(Direction d)
         {
+            if (_facing != d)
+            {
+                _hitboxTransform.localScale = new Vector3(_hitboxTransform.localScale.x * -1f, _hitboxTransform.localScale.y, _hitboxTransform.localScale.z);
+            }
+            
             _facing = d;
+            _spriteRenderer.flipX = _facing == Direction.Left;
         }
 
         public void Starting(bool s)
@@ -91,19 +105,18 @@ namespace Animations
         {
             _animator.Play(animation);
         }
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // core unity behavior
 
         private void Start()
         {
             _animator = GetComponent<Animator>();
             _spriteRenderer = GetComponent<SpriteRenderer>();
-        }
-        
-        private void Update()
-        {
-            _animator.SetBool(MOVING, _moving);
-            _animator.SetBool(JUMPING, _jumping);
-            _animator.SetBool(FALLING, _falling);
-            _spriteRenderer.flipX = _facing == Direction.Left;
+            _hitboxTransform = transform.Find(PlayerAnimator.HitBox).GameObject().GetComponent<Transform>();
+
+            _facing = Direction.Right;
         }
     }
 }

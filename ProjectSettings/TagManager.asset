@@ -13,7 +13,7 @@ TagManager:
   - UI
   - World
   - Player
-  - 
+  - NPC
   - 
   - 
   - 
@@ -43,6 +43,12 @@ TagManager:
     locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: NPC
+    uniqueID: 1055989729
+    locked: 0
+  - name: Player
+    uniqueID: 3595838935
     locked: 0
   - name: Foreground
     uniqueID: 2326886201

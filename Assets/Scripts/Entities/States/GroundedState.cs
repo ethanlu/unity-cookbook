@@ -6,9 +6,9 @@ using UnityEngine;
 
 namespace Entities.States
 {
-    public class GroundedState : EntityState
+    public class GroundedState : PlayerState
     {
-        public GroundedState(Entity entity, EntityStateMachine stateMachine) : base(entity, stateMachine)
+        public GroundedState(Player player, PlayerStateMachine stateMachine) : base(player, stateMachine)
         {
         }
         
@@ -25,7 +25,7 @@ namespace Entities.States
                     {
                         _attackSequence++;
                         _attackRecovery = false;
-                        _entity.EntityAnimator().GroundAttacking(_attackSequence);
+                        _player.PlayerAnimator().GroundAttacking(_attackSequence);
                     }
                     break;
                 case 1:     // combo attack if we are in recovery phase
@@ -33,7 +33,7 @@ namespace Entities.States
                     {
                         _attackSequence++;
                         _attackRecovery = false;
-                        _entity.EntityAnimator().GroundAttacking(_attackSequence);
+                        _player.PlayerAnimator().GroundAttacking(_attackSequence);
                     }
                     break;
                 case 2:     // combo attack if we are in recovery phase
@@ -42,13 +42,13 @@ namespace Entities.States
                         _attackSequence = 1;
                         _attackRecovery = false;
 
-                        _jumpVelocity = _entity.JumpConfiguration().JumpSpeed;
-                        _entity.EntityAnimator().Jumping(true);
+                        _jumpVelocity = _player.JumpConfiguration().JumpSpeed;
+                        _player.PlayerAnimator().Jumping(true);
 
-                        _entity.EntityAnimator().AirAttacking(_attackSequence);
-                        _entity.EntityAnimator().GroundAttacking(0);
+                        _player.PlayerAnimator().AirAttacking(_attackSequence);
+                        _player.PlayerAnimator().GroundAttacking(0);
 
-                        _stateMachine.ChangeState(EntityStateMachine.AerialState);
+                        _stateMachine.ChangeState(PlayerStateMachine.AerialState);
                     }
                     break;
                 default:
@@ -71,7 +71,7 @@ namespace Entities.States
                     {   // reached end of animation and a combo was not continued
                         _attackRecovery = false;
                         _attackSequence = 0;
-                        _entity.EntityAnimator().GroundAttacking(_attackSequence);
+                        _player.PlayerAnimator().GroundAttacking(_attackSequence);
 
                         ResumeMove();
                     }
@@ -92,7 +92,7 @@ namespace Entities.States
             GameInput.Instance.OnJumpAction += JumpAction;
             GameInput.Instance.OnAttackAction += AttackAction;
             
-            _entity.EntityAnimator().OnAnimationEvent += AnimationRecoveryEvent;
+            _player.PlayerAnimator().OnAnimationEvent += AnimationRecoveryEvent;
             ResumeMove();
         }
 
@@ -105,7 +105,7 @@ namespace Entities.States
             GameInput.Instance.OnJumpAction -= JumpAction;
             GameInput.Instance.OnAttackAction -= AttackAction;
             
-            _entity.EntityAnimator().OnAnimationEvent -= AnimationRecoveryEvent;
+            _player.PlayerAnimator().OnAnimationEvent -= AnimationRecoveryEvent;
         }
 
         public override void Update()
@@ -114,7 +114,7 @@ namespace Entities.States
 
             if (_moveVelocity == 0f)
             {   // idling
-                if (_entity.MoveConfiguration().InstantTopSpeed)
+                if (_player.MoveConfiguration().InstantTopSpeed)
                 {   // immediately stop
                     ApplyStopInstantly();
                 }
@@ -125,7 +125,7 @@ namespace Entities.States
             }
             else
             {   // moving
-                if (_entity.MoveConfiguration().InstantTopSpeed)
+                if (_player.MoveConfiguration().InstantTopSpeed)
                 {   // immediately move
                     ApplyMovementInstantly();
                 }
@@ -137,7 +137,7 @@ namespace Entities.States
             
             if (!_grounded)
             {
-                _stateMachine.ChangeState(EntityStateMachine.AerialState);
+                _stateMachine.ChangeState(PlayerStateMachine.AerialState);
             }
         }
 
