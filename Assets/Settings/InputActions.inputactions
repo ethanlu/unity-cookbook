@@ -2,7 +2,7 @@
     "name": "InputActions",
     "maps": [
         {
-            "name": "SideScrollPlayer",
+            "name": "Player",
             "id": "125a07f3-35f7-442e-b44b-38c055767ea0",
             "actions": [
                 {

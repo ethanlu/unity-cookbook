@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Entities.States;
 using UnityEngine;
 
-namespace Entities.States
+namespace Entities
 {
     public class EntityStateMachine
     {

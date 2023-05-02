@@ -40,10 +40,13 @@ namespace Entities.States
         
         public void MoveAction(object sender, EventArgs args)
         {
-            _moveVelocity = ((MoveEventArgs) args).Value.x * _entity.MoveConfiguration().TopSpeed;
-            _facing = _moveVelocity > 0f ? Direction.Right : Direction.Left;
-            _entity.EntityAnimator().Moving(true);
-            _entity.EntityAnimator().Facing(_facing);
+            if (_attackSequence == 0)
+            {   // must be not attacking
+                _moveVelocity = ((MoveEventArgs) args).Value.x * _entity.MoveConfiguration().TopSpeed;
+                _facing = _moveVelocity > 0f ? Direction.Right : Direction.Left;
+                _entity.EntityAnimator().Moving(true);
+                _entity.EntityAnimator().Facing(_facing);
+            }
         }
 
         protected void JumpAction(object sender, EventArgs args)

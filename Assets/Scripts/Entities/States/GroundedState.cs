@@ -67,11 +67,14 @@ namespace Entities.States
                     _attackRecovery = true;
                     break;
                 case "RecoveryEnd":
-                    _attackRecovery = false;
-                    _attackSequence = 0;
-                    _entity.EntityAnimator().GroundAttacking(_attackSequence);
+                    if (_attackRecovery)
+                    {   // reached end of animation and a combo was not continued
+                        _attackRecovery = false;
+                        _attackSequence = 0;
+                        _entity.EntityAnimator().GroundAttacking(_attackSequence);
 
-                    ResumeMove();
+                        ResumeMove();
+                    }
                     break;
             }
         }

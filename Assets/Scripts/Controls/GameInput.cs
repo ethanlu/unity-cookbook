@@ -23,14 +23,14 @@ namespace Controls
         private GameInput()
         {
             _inputActions = new InputActions();
-            _inputActions.SideScrollPlayer.Enable();
+            _inputActions.Player.Enable();
 
             _normalizedMovements = true;
 
-            _inputActions.SideScrollPlayer.Move.performed += MoveEvent;
-            _inputActions.SideScrollPlayer.Move.canceled += StopEvent;
-            _inputActions.SideScrollPlayer.Jump.performed += JumpEvent;
-            _inputActions.SideScrollPlayer.Attack.performed += AttackEvent;
+            _inputActions.Player.Move.performed += MoveEvent;
+            _inputActions.Player.Move.canceled += StopEvent;
+            _inputActions.Player.Jump.performed += JumpEvent;
+            _inputActions.Player.Attack.performed += AttackEvent;
         }
 
         private void MoveEvent(UnityEngine.InputSystem.InputAction.CallbackContext args)
