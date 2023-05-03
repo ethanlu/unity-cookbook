@@ -1,10 +1,10 @@
 using System;
-using Animations;
+using Player.Animations;
 using Controls;
 using Utils;
 using UnityEngine;
 
-namespace Entities.States
+namespace Player.States
 {
     public class GroundedState : PlayerState
     {

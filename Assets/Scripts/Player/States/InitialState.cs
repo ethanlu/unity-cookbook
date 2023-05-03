@@ -1,9 +1,9 @@
 using System;
-using Animations;
+using Player.Animations;
 using Utils;
 using UnityEngine;
 
-namespace Entities.States
+namespace Player.States
 {
     public class InitialState : PlayerState
     {

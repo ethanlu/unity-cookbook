@@ -1,8 +1,8 @@
 using System;
 
-namespace Entities.States
+namespace Common.FSM
 {
-    public interface IEntityState
+    public interface IState
     {
         public void Enter();
         public void Exit();

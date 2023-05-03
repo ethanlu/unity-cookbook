@@ -4,7 +4,7 @@ using Unity.VisualScripting;
 using Utils;
 using UnityEngine;
 
-namespace Animations
+namespace Player.Animations
 {
     public class AnimationEventArgs : EventArgs
     {

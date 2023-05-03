@@ -1,11 +1,12 @@
 using System;
+using Common.FSM;
 using Controls;
 using Utils;
 using UnityEngine;
 
-namespace Entities.States
+namespace Player.States
 {
-    public class PlayerState : IEntityState
+    public class PlayerState : IState
     {
         protected Player _player;
         protected PlayerStateMachine _stateMachine;

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Entities.Data
+namespace Player.Data
 {
     [CreateAssetMenu(fileName="JumpConfiguration", menuName="EntityConfigurations/JumpConfiguration", order=2)]
     public class JumpConfiguration : ScriptableObject

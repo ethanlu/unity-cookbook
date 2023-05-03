@@ -1,10 +1,10 @@
 using System;
-using Animations;
-using Entities.Data;
+using Player.Animations;
+using Player.Data;
 using Utils;
 using UnityEngine;
 
-namespace Entities
+namespace Player
 {
     [RequireComponent(typeof(BoxCollider2D))]
     [RequireComponent(typeof(Rigidbody2D))]
@@ -69,17 +69,18 @@ namespace Entities
             _boxCollider2D = GetComponent<BoxCollider2D>();
             _playerAnimator = _visual.GetComponent<PlayerAnimator>();
 
-            _stateMachine = new PlayerStateMachine(this, PlayerStateMachine.InitialState);
+            _stateMachine = new PlayerStateMachine(this);
+            _stateMachine.Start(PlayerStateMachine.InitialState);
         }
         
         protected void Update()
         {
-            _stateMachine.RunStateUpdate();
+            _stateMachine.Update();
         }
         
         protected void FixedUpdate()
         {
-            _stateMachine.RunStateFixedUpdate();
+            _stateMachine.FixedUpdate();
         }
     }
 }

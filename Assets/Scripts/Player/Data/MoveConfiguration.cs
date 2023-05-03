@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Entities.Data
+namespace Player.Data
 {
     [CreateAssetMenu(fileName="MoveConfiguration", menuName="EntityConfigurations/MoveConfiguration", order=1)]
     public class MoveConfiguration : ScriptableObject
