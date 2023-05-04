@@ -35,8 +35,8 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - HitBox
+  - HurtBox
   m_SortingLayers:
   - name: Background
     uniqueID: 2767047437

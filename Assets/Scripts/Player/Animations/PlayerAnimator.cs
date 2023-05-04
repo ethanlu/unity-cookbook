@@ -1,17 +1,11 @@
+using Common.Events;
 using System;
-using Entities;
-using Unity.VisualScripting;
 using Utils;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Player.Animations
 {
-    public class AnimationEventArgs : EventArgs
-    {
-        public string param1 { get; set; }
-        public string param2 { get; set; }
-    }
-    
     [RequireComponent(typeof(Animator))]
     [RequireComponent(typeof(SpriteRenderer))]
     public class PlayerAnimator : MonoBehaviour

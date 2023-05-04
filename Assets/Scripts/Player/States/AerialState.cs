@@ -1,6 +1,8 @@
 using System;
-using Player.Animations;
+using Common.Events;
 using Controls;
+using Player.Animations;
+using Player.Data;
 using Utils;
 using UnityEngine;
 
@@ -8,7 +10,15 @@ namespace Player.States
 {
     public class AerialState : PlayerState
     {
-        public AerialState(Player player, PlayerStateMachine stateMachine) : base(player, stateMachine)
+        public AerialState(
+            PlayerStateMachine stateMachine,
+            Rigidbody2D physicsBody,
+            BoxCollider2D physicsCollider,
+            PlayerAnimator animator,
+            MoveConfiguration moveConfiguration,
+            JumpConfiguration jumpConfiguration,
+            AttackConfiguration attackConfiguration
+        ) : base(stateMachine, physicsBody, physicsCollider, animator, moveConfiguration, jumpConfiguration, attackConfiguration)
         {
         }
         
@@ -22,11 +32,11 @@ namespace Player.States
             {
                 case 0: // non-combo attack
                     _attackSequence = 2;
-                    _player.PlayerAnimator().AirAttacking(_attackSequence);
+                    _animator.AirAttacking(_attackSequence);
                     break;
                 case 1: // combo attack
                     _attackSequence = 2;
-                    _player.PlayerAnimator().AirAttacking(_attackSequence);
+                    _animator.AirAttacking(_attackSequence);
                     break;
                 default:
                     _attackSequence = 0;
@@ -40,7 +50,7 @@ namespace Player.States
             {
                 case "RecoveryEnd":
                     _attackSequence = 0;
-                    _player.PlayerAnimator().AirAttacking(_attackSequence);
+                    _animator.AirAttacking(_attackSequence);
                     break;
             }
         }
@@ -58,7 +68,7 @@ namespace Player.States
             GameInput.Instance.OnJumpAction += JumpAction;
             GameInput.Instance.OnAttackAction += AttackAction;
             
-            _player.PlayerAnimator().OnAnimationEvent += AnimationRecoveryEvent;
+            _animator.OnAnimationEvent += AnimationRecoveryEvent;
         }
 
         public override void Exit()
@@ -70,7 +80,7 @@ namespace Player.States
             GameInput.Instance.OnJumpAction -= JumpAction;
             GameInput.Instance.OnAttackAction -= AttackAction;
             
-            _player.PlayerAnimator().OnAnimationEvent -= AnimationRecoveryEvent;
+            _animator.OnAnimationEvent -= AnimationRecoveryEvent;
 
             _airJumpCount = 0;
             _jumpVelocity = 0f;
@@ -82,30 +92,30 @@ namespace Player.States
             
             if (_jumpVelocity > 0f)
             {
-                _player.Rigidbody2D().velocity += Vector2.up * _jumpVelocity;
+                _physicsBody.velocity += Vector2.up * _jumpVelocity;
                 _jumpVelocity = 0f;
             }
 
-            if (_player.Rigidbody2D().velocity.y < 0f)
+            if (_physicsBody.velocity.y < 0f)
             {   // if vertical velocity is negative, then we must no longer be jumping and would be falling if we are not grounded
-                _player.PlayerAnimator().Jumping(false);
-                _player.PlayerAnimator().Falling(!_grounded);
+                _animator.Jumping(false);
+                _animator.Falling(!_grounded);
             }
 
-            if (_moveVelocity != 0f && _player.JumpConfiguration().AerialMove)
+            if (_moveVelocity != 0f && _jumpConfiguration.AerialMove)
             {   // allow some movement while in the air
                 ApplyMovementWithAcceleration();
             }
 
-            if (_moveVelocity == 0f && _player.JumpConfiguration().AerialMove)
+            if (_moveVelocity == 0f && _jumpConfiguration.AerialMove)
             {   // stopped moving but do a slight drift due to being in air
                 ApplyStopWithDeceleration();
             }
             
-            if (_grounded && _jumpVelocity == 0f && _player.Rigidbody2D().velocity.y == 0f)
+            if (_grounded && _jumpVelocity == 0f && _physicsBody.velocity.y == 0f)
             {   // touching ground and there is no jump velocity to apply and current vertical velocity is 0....we are grounded
                 _attackSequence = 0;
-                _player.PlayerAnimator().AirAttacking(_attackSequence);
+                _animator.AirAttacking(_attackSequence);
                 _stateMachine.ChangeState(PlayerStateMachine.GroundedState);
             }
         }

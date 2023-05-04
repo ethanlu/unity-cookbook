@@ -1,5 +1,7 @@
 using System;
+using Common.Events;
 using Player.Animations;
+using Player.Data;
 using Utils;
 using UnityEngine;
 
@@ -7,7 +9,15 @@ namespace Player.States
 {
     public class InitialState : PlayerState
     {
-        public InitialState(Player player, PlayerStateMachine stateMachine) : base(player, stateMachine)
+        public InitialState(
+            PlayerStateMachine stateMachine,
+            Rigidbody2D physicsBody,
+            BoxCollider2D physicsCollider,
+            PlayerAnimator animator,
+            MoveConfiguration moveConfiguration,
+            JumpConfiguration jumpConfiguration,
+            AttackConfiguration attackConfiguration
+        ) : base(stateMachine, physicsBody, physicsCollider, animator, moveConfiguration, jumpConfiguration, attackConfiguration)
         {
         }
         
@@ -37,30 +47,30 @@ namespace Player.States
             _facing = Direction.Right;
             _attackSequence = 0;
 
-            _player.PlayerAnimator().Starting(true);
-            _player.PlayerAnimator().Moving(false);
-            _player.PlayerAnimator().Jumping(false);
-            _player.PlayerAnimator().Facing(_facing);
-            _player.PlayerAnimator().OnAnimationEvent += InitialAnimationFinish;
+            _animator.Starting(true);
+            _animator.Moving(false);
+            _animator.Jumping(false);
+            _animator.Facing(_facing);
+            _animator.OnAnimationEvent += InitialAnimationFinish;
         }
 
         public override void Exit()
         {
             base.Exit();
             
-            _player.PlayerAnimator().Starting(false);
-            _player.PlayerAnimator().PlayAnimation("Idle");
-            _player.PlayerAnimator().OnAnimationEvent -= InitialAnimationFinish;
+            _animator.Starting(false);
+            _animator.PlayAnimation("Idle");
+            _animator.OnAnimationEvent -= InitialAnimationFinish;
         }
 
         public override void Update()
         {
-            //base.Update();
+            base.Update();
         }
 
         public override void FixedUpdate()
         {
-            //base.FixedUpdate();
+            base.FixedUpdate();
         }
     }
 }

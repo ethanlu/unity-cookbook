@@ -1,6 +1,9 @@
+using Common.FSM;
+using Player.Animations;
+using Player.Data;
 using System;
 using System.Collections.Generic;
-using Common.FSM;
+using System.Linq;
 using UnityEngine;
 
 namespace Player
@@ -11,11 +14,18 @@ namespace Player
         public const string GroundedState = "Grounded";
         public const string AerialState = "Aerial";
 
-        private Player _player;
+        private object[] _parmameters;
 
-        public PlayerStateMachine(Player entity) : base()
+        public PlayerStateMachine(
+            Rigidbody2D physicsBody,
+            BoxCollider2D physicsCollider,
+            PlayerAnimator animator,
+            MoveConfiguration moveConfiguration,
+            JumpConfiguration jumpConfiguration,
+            AttackConfiguration attackConfiguration
+        ) : base()
         {
-            _player = entity;
+            _parmameters = new object[]{ this, physicsBody, physicsCollider, animator, moveConfiguration, jumpConfiguration, attackConfiguration };
         }
 
         public override string StatePath()
@@ -25,8 +35,7 @@ namespace Player
         
         public override object[] StateParameters()
         {
-            object[] parameters = {_player, this};
-            return parameters;
+            return _parmameters;
         }
     }
 }

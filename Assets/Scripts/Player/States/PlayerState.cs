@@ -1,6 +1,8 @@
 using System;
 using Common.FSM;
 using Controls;
+using Player.Animations;
+using Player.Data;
 using Utils;
 using UnityEngine;
 
@@ -8,8 +10,25 @@ namespace Player.States
 {
     public class PlayerState : IState
     {
-        protected Player _player;
         protected PlayerStateMachine _stateMachine;
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // unity components
+
+        protected Rigidbody2D _physicsBody;
+        protected BoxCollider2D _physicsCollider;
+        protected PlayerAnimator _animator;
+
+        protected MoveConfiguration _moveConfiguration;
+        protected JumpConfiguration _jumpConfiguration;
+        protected AttackConfiguration _attackConfiguration;
+        
+        
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // state data
 
         protected static bool _grounded;
         protected static Direction _facing;
@@ -22,10 +41,23 @@ namespace Player.States
         protected static int _attackSequence;
         protected static bool _attackRecovery;
 
-        public PlayerState(Player player, PlayerStateMachine stateMachine)
+        public PlayerState(
+            PlayerStateMachine stateMachine,
+            Rigidbody2D physicsBody,
+            BoxCollider2D physicsCollider,
+            PlayerAnimator animator,
+            MoveConfiguration moveConfiguration,
+            JumpConfiguration jumpConfiguration,
+            AttackConfiguration attackConfiguration
+        )
         {
-            _player = player;
             _stateMachine = stateMachine;
+            _physicsBody = physicsBody;
+            _physicsCollider = physicsCollider;
+            _animator = animator;
+            _moveConfiguration = moveConfiguration;
+            _jumpConfiguration = jumpConfiguration;
+            _attackConfiguration = attackConfiguration;
         }
         
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,30 +68,30 @@ namespace Player.States
         {
             _moveVelocity = 0f;
             _pausedMoveVelocity = 0f;
-            _player.PlayerAnimator().Moving(false);
+            _animator.Moving(false);
         }
         
         public void MoveAction(object sender, EventArgs args)
         {
-            _moveVelocity = ((MoveEventArgs) args).Value.x * _player.MoveConfiguration().TopSpeed;
+            _moveVelocity = ((MoveEventArgs) args).Value.x * _moveConfiguration.TopSpeed;
             _facing = _moveVelocity > 0f ? Direction.Right : Direction.Left;
-            _player.PlayerAnimator().Moving(true);
-            _player.PlayerAnimator().Facing(_facing);
+            _animator.Moving(true);
+            _animator.Facing(_facing);
         }
 
         protected void JumpAction(object sender, EventArgs args)
         {
             if (_attackSequence == 0 && (_grounded || 
-                (_player.JumpConfiguration().AirJump && 
-                 _player.Rigidbody2D().velocity.y > -_player.JumpConfiguration().AirJumpWindow && 
-                 _player.Rigidbody2D().velocity.y < _player.JumpConfiguration().AirJumpWindow && 
-                 _airJumpCount < _player.JumpConfiguration().MaxAirJumps)))
+                (_jumpConfiguration.AirJump && 
+                 _physicsBody.velocity.y > -_jumpConfiguration.AirJumpWindow && 
+                 _physicsBody.velocity.y < _jumpConfiguration.AirJumpWindow && 
+                 _airJumpCount < _jumpConfiguration.MaxAirJumps)))
             {   // only allow jump if we are grounded or double jump is enabled and we are around the apex of the jump and we still have air jump charges available
                 _airJumpCount += _grounded ? 0 : 1;
-                _jumpVelocity = _player.JumpConfiguration().JumpSpeed;
+                _jumpVelocity = _jumpConfiguration.JumpSpeed;
                 
-                _player.PlayerAnimator().Jumping(true);
-                _player.PlayerAnimator().Falling(false);
+                _animator.Jumping(true);
+                _animator.Falling(false);
                 
                 _stateMachine.ChangeState(PlayerStateMachine.AerialState);
             }
@@ -72,16 +104,16 @@ namespace Player.States
         protected bool IsGrounded()
         {
             RaycastHit2D hit = Physics2D.BoxCast(
-                _player.BoxCollider2D().bounds.center, 
-                _player.BoxCollider2D().bounds.size, 0, Vector2.down, 
-                _player.JumpConfiguration().GroundDistance, 
-                _player.JumpConfiguration().GroundLayer
+                _physicsCollider.bounds.center, 
+                _physicsCollider.bounds.size, 0, Vector2.down, 
+                _jumpConfiguration.GroundDistance, 
+                _jumpConfiguration.GroundLayer
             );
 
             // draw a debug line at the bottom of the object representing what the box raycast would be hitting
             Debug.DrawLine(
-                new Vector3(_player.Rigidbody2D().position.x - _player.BoxCollider2D().bounds.extents.x, _player.Rigidbody2D().position.y - _player.JumpConfiguration().GroundDistance),
-                new Vector3(_player.Rigidbody2D().position.x + _player.BoxCollider2D().bounds.extents.x, _player.Rigidbody2D().position.y - _player.JumpConfiguration().GroundDistance),
+                new Vector3(_physicsBody.position.x - _physicsCollider.bounds.extents.x, _physicsBody.position.y - _jumpConfiguration.GroundDistance),
+                new Vector3(_physicsBody.position.x + _physicsCollider.bounds.extents.x, _physicsBody.position.y - _jumpConfiguration.GroundDistance),
                 hit.collider is null ? Color.green : Color.red
             );
 
@@ -90,44 +122,44 @@ namespace Player.States
 
         protected void ApplyMovementInstantly()
         {
-            _player.Rigidbody2D().velocity = new Vector2(_moveVelocity, _player.Rigidbody2D().velocity.y);
+            _physicsBody.velocity = new Vector2(_moveVelocity, _physicsBody.velocity.y);
         }
 
         protected void ApplyMovementWithAcceleration()
         {
-            _player.Rigidbody2D().velocity = new Vector2(
+            _physicsBody.velocity = new Vector2(
                 Mathf.Clamp(
-                    _player.Rigidbody2D().velocity.x + (_moveVelocity > 0f ? 1f : -1f) * _player.MoveConfiguration().AccelerationSpeed * Time.deltaTime,
-                    -_player.MoveConfiguration().TopSpeed,
-                    _player.MoveConfiguration().TopSpeed),
-                _player.Rigidbody2D().velocity.y);
+                    _physicsBody.velocity.x + (_moveVelocity > 0f ? 1f : -1f) * _moveConfiguration.AccelerationSpeed * Time.deltaTime,
+                    -_moveConfiguration.TopSpeed,
+                    _moveConfiguration.TopSpeed),
+                _physicsBody.velocity.y);
         }
 
         protected void ApplyStopInstantly()
         {
-            _player.Rigidbody2D().velocity = new Vector2(0f, _player.Rigidbody2D().velocity.y);
+            _physicsBody.velocity = new Vector2(0f, _physicsBody.velocity.y);
         }
 
         protected void ApplyStopWithDeceleration()
         {
-            if (_player.Rigidbody2D().velocity.x < 0f)
+            if (_physicsBody.velocity.x < 0f)
             {
-                _player.Rigidbody2D().velocity = new Vector2(
+                _physicsBody.velocity = new Vector2(
                     Mathf.Clamp(
-                        _player.Rigidbody2D().velocity.x + _player.MoveConfiguration().DecelerationSpeed * Time.deltaTime,
-                        _player.Rigidbody2D().velocity.x,
+                        _physicsBody.velocity.x + _moveConfiguration.DecelerationSpeed * Time.deltaTime,
+                        _physicsBody.velocity.x,
                         _moveVelocity),
-                    _player.Rigidbody2D().velocity.y);
+                    _physicsBody.velocity.y);
             }
 
-            if (_player.Rigidbody2D().velocity.x > 0f)
+            if (_physicsBody.velocity.x > 0f)
             {
-                _player.Rigidbody2D().velocity = new Vector2(
+                _physicsBody.velocity = new Vector2(
                     Mathf.Clamp(
-                        _player.Rigidbody2D().velocity.x - _player.MoveConfiguration().DecelerationSpeed * Time.deltaTime,
+                        _physicsBody.velocity.x - _moveConfiguration.DecelerationSpeed * Time.deltaTime,
                         _moveVelocity,
-                        _player.Rigidbody2D().velocity.x),
-                    _player.Rigidbody2D().velocity.y);
+                        _physicsBody.velocity.x),
+                    _physicsBody.velocity.y);
             }
         }
 

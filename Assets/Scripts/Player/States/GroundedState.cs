@@ -1,6 +1,8 @@
 using System;
-using Player.Animations;
+using Common.Events;
 using Controls;
+using Player.Animations;
+using Player.Data;
 using Utils;
 using UnityEngine;
 
@@ -8,7 +10,15 @@ namespace Player.States
 {
     public class GroundedState : PlayerState
     {
-        public GroundedState(Player player, PlayerStateMachine stateMachine) : base(player, stateMachine)
+        public GroundedState(
+            PlayerStateMachine stateMachine,
+            Rigidbody2D physicsBody,
+            BoxCollider2D physicsCollider,
+            PlayerAnimator animator,
+            MoveConfiguration moveConfiguration,
+            JumpConfiguration jumpConfiguration,
+            AttackConfiguration attackConfiguration
+        ) : base(stateMachine, physicsBody, physicsCollider, animator, moveConfiguration, jumpConfiguration, attackConfiguration)
         {
         }
         
@@ -25,7 +35,7 @@ namespace Player.States
                     {
                         _attackSequence++;
                         _attackRecovery = false;
-                        _player.PlayerAnimator().GroundAttacking(_attackSequence);
+                        _animator.GroundAttacking(_attackSequence);
                     }
                     break;
                 case 1:     // combo attack if we are in recovery phase
@@ -33,7 +43,7 @@ namespace Player.States
                     {
                         _attackSequence++;
                         _attackRecovery = false;
-                        _player.PlayerAnimator().GroundAttacking(_attackSequence);
+                        _animator.GroundAttacking(_attackSequence);
                     }
                     break;
                 case 2:     // combo attack if we are in recovery phase
@@ -42,11 +52,11 @@ namespace Player.States
                         _attackSequence = 1;
                         _attackRecovery = false;
 
-                        _jumpVelocity = _player.JumpConfiguration().JumpSpeed;
-                        _player.PlayerAnimator().Jumping(true);
+                        _jumpVelocity = _jumpConfiguration.JumpSpeed;
+                        _animator.Jumping(true);
 
-                        _player.PlayerAnimator().AirAttacking(_attackSequence);
-                        _player.PlayerAnimator().GroundAttacking(0);
+                        _animator.AirAttacking(_attackSequence);
+                        _animator.GroundAttacking(0);
 
                         _stateMachine.ChangeState(PlayerStateMachine.AerialState);
                     }
@@ -69,7 +79,7 @@ namespace Player.States
                     {   // reached end of animation and a combo was not continued
                         _attackRecovery = false;
                         _attackSequence = 0;
-                        _player.PlayerAnimator().GroundAttacking(_attackSequence);
+                        _animator.GroundAttacking(_attackSequence);
                     }
                     break;
             }
@@ -88,7 +98,7 @@ namespace Player.States
             GameInput.Instance.OnJumpAction += JumpAction;
             GameInput.Instance.OnAttackAction += AttackAction;
             
-            _player.PlayerAnimator().OnAnimationEvent += AnimationRecoveryEvent;
+            _animator.OnAnimationEvent += AnimationRecoveryEvent;
         }
 
         public override void Exit()
@@ -100,14 +110,14 @@ namespace Player.States
             GameInput.Instance.OnJumpAction -= JumpAction;
             GameInput.Instance.OnAttackAction -= AttackAction;
             
-            _player.PlayerAnimator().OnAnimationEvent -= AnimationRecoveryEvent;
+            _animator.OnAnimationEvent -= AnimationRecoveryEvent;
         }
 
         public override void Update()
         {
             base.Update();
             
-            if (_moveVelocity != 0f && _attackSequence > 0 && !_player.AttackConfiguration().AttackMove)
+            if (_moveVelocity != 0f && _attackSequence > 0 && !_attackConfiguration.AttackMove)
             {   // there is a move velocity, but we are attacking and attack-move is not enabled....interrupt move
                 _pausedMoveVelocity = _moveVelocity;
                 _moveVelocity = 0f;
@@ -121,7 +131,7 @@ namespace Player.States
 
             if (_moveVelocity == 0f)
             {   // idling
-                if (_player.MoveConfiguration().InstantTopSpeed)
+                if (_moveConfiguration.InstantTopSpeed)
                 {   // immediately stop
                     ApplyStopInstantly();
                 }
@@ -132,7 +142,7 @@ namespace Player.States
             }
             else
             {   // moving
-                if (_player.MoveConfiguration().InstantTopSpeed)
+                if (_moveConfiguration.InstantTopSpeed)
                 {   // immediately move
                     ApplyMovementInstantly();
                 }
