@@ -41,13 +41,10 @@ namespace Player.States
         
         public void MoveAction(object sender, EventArgs args)
         {
-            if (_attackSequence == 0)
-            {   // must be not attacking
-                _moveVelocity = ((MoveEventArgs) args).Value.x * _player.MoveConfiguration().TopSpeed;
-                _facing = _moveVelocity > 0f ? Direction.Right : Direction.Left;
-                _player.PlayerAnimator().Moving(true);
-                _player.PlayerAnimator().Facing(_facing);
-            }
+            _moveVelocity = ((MoveEventArgs) args).Value.x * _player.MoveConfiguration().TopSpeed;
+            _facing = _moveVelocity > 0f ? Direction.Right : Direction.Left;
+            _player.PlayerAnimator().Moving(true);
+            _player.PlayerAnimator().Facing(_facing);
         }
 
         protected void JumpAction(object sender, EventArgs args)
@@ -131,25 +128,6 @@ namespace Player.States
                         _moveVelocity,
                         _player.Rigidbody2D().velocity.x),
                     _player.Rigidbody2D().velocity.y);
-            }
-        }
-        
-        
-        protected void InterruptMove()
-        {
-            if (_moveVelocity != 0f && _attackSequence > 0 && !_player.AttackConfiguration().AttackMove)
-            {   // if attack move is not enabled, stop move velocity
-                _pausedMoveVelocity = _moveVelocity;
-                _moveVelocity = 0f;
-            }
-        }
-
-        protected void ResumeMove()
-        {
-            if (_pausedMoveVelocity != 0f)
-            {
-                _moveVelocity = _pausedMoveVelocity;
-                _pausedMoveVelocity = 0f;
             }
         }
 

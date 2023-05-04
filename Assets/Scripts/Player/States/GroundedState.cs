@@ -55,8 +55,6 @@ namespace Player.States
                     _attackSequence = 0;
                     break;
             }
-
-            InterruptMove();
         }
         
         private void AnimationRecoveryEvent(object sender, EventArgs args)
@@ -72,8 +70,6 @@ namespace Player.States
                         _attackRecovery = false;
                         _attackSequence = 0;
                         _player.PlayerAnimator().GroundAttacking(_attackSequence);
-
-                        ResumeMove();
                     }
                     break;
             }
@@ -93,7 +89,6 @@ namespace Player.States
             GameInput.Instance.OnAttackAction += AttackAction;
             
             _player.PlayerAnimator().OnAnimationEvent += AnimationRecoveryEvent;
-            ResumeMove();
         }
 
         public override void Exit()
@@ -111,6 +106,18 @@ namespace Player.States
         public override void Update()
         {
             base.Update();
+            
+            if (_moveVelocity != 0f && _attackSequence > 0 && !_player.AttackConfiguration().AttackMove)
+            {   // there is a move velocity, but we are attacking and attack-move is not enabled....interrupt move
+                _pausedMoveVelocity = _moveVelocity;
+                _moveVelocity = 0f;
+            }
+            
+            if (_attackSequence == 0 && _pausedMoveVelocity != 0f)
+            {   // no longer attacking ...resume move velocity if there is any
+                _moveVelocity = _pausedMoveVelocity;
+                _pausedMoveVelocity = 0f;
+            }
 
             if (_moveVelocity == 0f)
             {   // idling

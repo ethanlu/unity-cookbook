@@ -41,7 +41,6 @@ namespace Player.States
                 case "RecoveryEnd":
                     _attackSequence = 0;
                     _player.PlayerAnimator().AirAttacking(_attackSequence);
-                    ResumeMove();
                     break;
             }
         }
@@ -104,7 +103,7 @@ namespace Player.States
             }
             
             if (_grounded && _jumpVelocity == 0f && _player.Rigidbody2D().velocity.y == 0f)
-            {
+            {   // touching ground and there is no jump velocity to apply and current vertical velocity is 0....we are grounded
                 _attackSequence = 0;
                 _player.PlayerAnimator().AirAttacking(_attackSequence);
                 _stateMachine.ChangeState(PlayerStateMachine.GroundedState);
