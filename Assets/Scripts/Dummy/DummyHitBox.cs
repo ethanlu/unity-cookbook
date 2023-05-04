@@ -1,23 +1,19 @@
 using System;
-using Player.Animations;
-using Player.Data;
-using Utils;
+using Common.Events;
 using UnityEngine;
 
-namespace Player
+namespace Dummy
 {
     [RequireComponent(typeof(BoxCollider2D))]
-    [RequireComponent(typeof(Rigidbody2D))]
-    public class Player : MonoBehaviour
+    public class DummyHitBox : MonoBehaviour
     {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // customizable fields
+        // events
         
-        [SerializeField] private MoveConfiguration _moveConfiguration;
-        [SerializeField] private JumpConfiguration _jumpConfiguration;
-        [SerializeField] private AttackConfiguration _attackConfiguration;
-
+        public event EventHandler OnSeeEvent;
+        public event EventHandler OnTrackEvent;
+        
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // unity components
@@ -25,8 +21,6 @@ namespace Player
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // internal properties
-        
-        private PlayerStateMachine _stateMachine;
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,39 +28,54 @@ namespace Player
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // event delegates
+        // getters
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // core unity behavior
-        
+
+        protected void OnTriggerEnter2D(Collider2D other)
+        {
+            if (OnSeeEvent is not null)
+            {
+                Rigidbody2D otherPosition = other.GetComponentInParent<Rigidbody2D>();
+                
+                SeeEventArgs a = new SeeEventArgs();
+                a.source = other.name;
+                a.position = otherPosition.position;
+
+                OnSeeEvent(this, a);
+            }
+        }
+
+        protected void OnTriggerStay2D(Collider2D other)
+        {
+            if (OnTrackEvent is not null)
+            {
+                Rigidbody2D otherPosition = other.GetComponentInParent<Rigidbody2D>();
+                
+                SeeEventArgs a = new SeeEventArgs();
+                a.source = other.name;
+                a.position = otherPosition.position;
+
+                OnTrackEvent(this, a);
+            }
+        }
+
         protected void Awake()
         {
         }
 
         protected void Start()
         {
-            _stateMachine = new PlayerStateMachine(
-                GetComponent<Rigidbody2D>(),
-                GetComponent<BoxCollider2D>(),
-                GameObject.Find("PlayerVisual").GetComponent<PlayerAnimator>(),
-                GameObject.Find("PlayerHitBox").GetComponent<PlayerHitBox>(),
-                GameObject.Find("PlayerHurtBox").GetComponent<PlayerHurtBox>(),
-                _moveConfiguration,
-                _jumpConfiguration,
-                _attackConfiguration
-            );
-            _stateMachine.Start(PlayerStateMachine.InitialState);
         }
         
         protected void Update()
         {
-            _stateMachine.Update();
         }
         
         protected void FixedUpdate()
         {
-            _stateMachine.FixedUpdate();
         }
     }
 }

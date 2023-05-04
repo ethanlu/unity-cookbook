@@ -1,0 +1,91 @@
+using System;
+using Common.Events;
+using Common.FSM;
+using Dummy.Animations;
+using Utils;
+using UnityEngine;
+
+namespace Dummy.States
+{
+    public class DummyState : IState
+    {
+        protected DummyStateMachine _stateMachine;
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // unity components
+
+        protected Rigidbody2D _physicsBody;
+        protected BoxCollider2D _physicsCollider;
+        protected DummyAnimator _animator;
+
+        protected DummyHitBox _hitBox;
+        protected DummyHurtBox _hurtBox;
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // state data
+
+        protected static Direction _facing;
+
+        public DummyState(
+            DummyStateMachine stateMachine,
+            Rigidbody2D physicsBody,
+            BoxCollider2D physicsCollider,
+            DummyAnimator animator,
+            DummyHitBox hitBox,
+            DummyHurtBox hurtBox
+        )
+        {
+            _stateMachine = stateMachine;
+            _physicsBody = physicsBody;
+            _physicsCollider = physicsCollider;
+            _animator = animator;
+
+            _hitBox = hitBox;
+            _hurtBox = hurtBox;
+        }
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // event delegates
+        
+        public void SeeEvent(object sender, EventArgs args)
+        {
+            string source = ((SeeEventArgs) args).source;
+            Vector2 sourcePosition = ((SeeEventArgs) args).position;
+            _facing = (sourcePosition.x > _physicsBody.position.x) ? Direction.Right : Direction.Left;
+            _animator.Facing(_facing);
+        }
+
+        public void HurtEvent(object sender, EventArgs args)
+        {
+            _animator.Hurt();
+            _stateMachine.ChangeState(DummyStateMachine.AwareState);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // internal methods
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // interface methods
+
+        public virtual void Enter()
+        {
+        }
+
+        public virtual void Exit()
+        {
+        }
+
+        public virtual void Update()
+        {
+        }
+
+        public virtual void FixedUpdate()
+        {
+        }
+    }
+}

@@ -1,0 +1,60 @@
+using System;
+using Common.FSM;
+using Dummy.Animations;
+using Utils;
+using UnityEngine;
+
+namespace Dummy.States
+{
+    public class NormalState : DummyState
+    {
+        public NormalState(
+            DummyStateMachine stateMachine,
+            Rigidbody2D physicsBody,
+            BoxCollider2D physicsCollider,
+            DummyAnimator animator,
+            DummyHitBox hitBox,
+            DummyHurtBox hurtBox
+        ) : base (stateMachine, physicsBody, physicsCollider, animator, hitBox, hurtBox)
+        {
+        }
+        
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // event delegates
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // internal methods
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // interface methods
+
+        public override void Enter()
+        {
+            base.Enter();
+            
+            _hitBox.OnSeeEvent += SeeEvent;
+            _hurtBox.OnHurtEvent += HurtEvent;
+        }
+
+        public override void Exit()
+        {
+            base.Exit();
+            
+            _hitBox.OnSeeEvent -= SeeEvent;
+            _hurtBox.OnHurtEvent -= HurtEvent;
+        }
+
+        public override void Update()
+        {
+            base.Update();
+        }
+
+        public override void FixedUpdate()
+        {
+            base.FixedUpdate();
+        }
+    }
+}

@@ -15,10 +15,12 @@ namespace Player.States
             Rigidbody2D physicsBody,
             BoxCollider2D physicsCollider,
             PlayerAnimator animator,
+            PlayerHitBox hitBox,
+            PlayerHurtBox hurtBox,
             MoveConfiguration moveConfiguration,
             JumpConfiguration jumpConfiguration,
             AttackConfiguration attackConfiguration
-        ) : base(stateMachine, physicsBody, physicsCollider, animator, moveConfiguration, jumpConfiguration, attackConfiguration)
+        ) : base(stateMachine, physicsBody, physicsCollider, animator, hitBox, hurtBox, moveConfiguration, jumpConfiguration, attackConfiguration)
         {
         }
         

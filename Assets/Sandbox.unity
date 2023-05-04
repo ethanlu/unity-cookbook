@@ -735,6 +735,7 @@ GameObject:
   - component: {fileID: 513859010}
   - component: {fileID: 513859011}
   - component: {fileID: 513859012}
+  - component: {fileID: 513859013}
   m_Layer: 8
   m_Name: DummyVisual
   m_TagString: Untagged
@@ -832,6 +833,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &513859013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 513859009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b513439092b4b0e8946c0d0727aca1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1410,7 +1423,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1151802513}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 4.76, y: -0.98, z: 0}
+  m_LocalPosition: {x: -1.63, y: 1.53, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1430,7 +1443,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fdea22c0dee458b8c30ad65d61ef390, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _visual: {fileID: 513859009}
 --- !u!1 &1329975661
 GameObject:
   m_ObjectHideFlags: 0
@@ -1725,7 +1737,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bbfa87e6e5d4bbb869b463df5aee868, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _visual: {fileID: 814828225}
   _moveConfiguration: {fileID: 11400000, guid: 0275b45f5628e419695d443fb0f32100, type: 2}
   _jumpConfiguration: {fileID: 11400000, guid: a3f89b9f3f60e48afbac52f0476226a5, type: 2}
   _attackConfiguration: {fileID: 11400000, guid: d6685f5868f8a4668a87d6a2d5a0c7c3, type: 2}

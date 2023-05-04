@@ -1,13 +1,9 @@
+using Common.Events;
 using System;
 using UnityEngine;
 
 namespace Controls
 {
-    public class MoveEventArgs : EventArgs
-    {
-        public Vector2 Value { get; set; }
-    }
-    
     public sealed class GameInput
     {
         public event EventHandler OnMoveAction;
@@ -37,7 +33,7 @@ namespace Controls
         {
             if (OnMoveAction is not null)
             {
-                MoveEventArgs a = new MoveEventArgs();
+                ControlMoveEventArgs a = new ControlMoveEventArgs();
                 a.Value = _normalizedMovements ? args.ReadValue<Vector2>().normalized : args.ReadValue<Vector2>();
                 OnMoveAction(this, a);
             }

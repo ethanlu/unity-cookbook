@@ -1,4 +1,5 @@
 using System;
+using Common.Events;
 using Common.FSM;
 using Controls;
 using Player.Animations;
@@ -20,12 +21,13 @@ namespace Player.States
         protected BoxCollider2D _physicsCollider;
         protected PlayerAnimator _animator;
 
+        protected PlayerHitBox _hitBox;
+        protected PlayerHurtBox _hurtBox;
+
         protected MoveConfiguration _moveConfiguration;
         protected JumpConfiguration _jumpConfiguration;
         protected AttackConfiguration _attackConfiguration;
-        
-        
-        
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // state data
@@ -46,6 +48,8 @@ namespace Player.States
             Rigidbody2D physicsBody,
             BoxCollider2D physicsCollider,
             PlayerAnimator animator,
+            PlayerHitBox hitBox,
+            PlayerHurtBox hurtBox,
             MoveConfiguration moveConfiguration,
             JumpConfiguration jumpConfiguration,
             AttackConfiguration attackConfiguration
@@ -73,7 +77,7 @@ namespace Player.States
         
         public void MoveAction(object sender, EventArgs args)
         {
-            _moveVelocity = ((MoveEventArgs) args).Value.x * _moveConfiguration.TopSpeed;
+            _moveVelocity = ((ControlMoveEventArgs) args).Value.x * _moveConfiguration.TopSpeed;
             _facing = _moveVelocity > 0f ? Direction.Right : Direction.Left;
             _animator.Moving(true);
             _animator.Facing(_facing);

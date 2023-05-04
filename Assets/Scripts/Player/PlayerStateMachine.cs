@@ -20,12 +20,14 @@ namespace Player
             Rigidbody2D physicsBody,
             BoxCollider2D physicsCollider,
             PlayerAnimator animator,
+            PlayerHitBox hitBox,
+            PlayerHurtBox hurtBox,
             MoveConfiguration moveConfiguration,
             JumpConfiguration jumpConfiguration,
             AttackConfiguration attackConfiguration
         ) : base()
         {
-            _parmameters = new object[]{ this, physicsBody, physicsCollider, animator, moveConfiguration, jumpConfiguration, attackConfiguration };
+            _parmameters = new object[]{ this, physicsBody, physicsCollider, animator, hitBox, hurtBox, moveConfiguration, jumpConfiguration, attackConfiguration };
         }
 
         public override string StatePath()
